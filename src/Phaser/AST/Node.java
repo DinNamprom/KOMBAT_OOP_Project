@@ -1,6 +1,5 @@
 package Phaser.AST;
 
 public interface Node {
-    String eval();
-    void prettyPrint();
+    void prettyPrint(StringBuilder sb);
 }

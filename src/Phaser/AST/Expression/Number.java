@@ -1,13 +1,15 @@
 package Phaser.AST.Expression;
 
-public record Number() implements Expr {
+import java.util.Map;
+
+public record Number(long l) implements Expr {
     @Override
-    public String eval() {
-        return "";
+    public Long eval(Map<String, Long> var) {
+        return l;
     }
 
     @Override
-    public void prettyPrint() {
-
+    public void prettyPrint(StringBuilder sb) {
+        sb.append(l);
     }
 }

@@ -1,16 +1,15 @@
-package Phaser;
+package Parser;
 
-import Phaser.AST.*;
-import Phaser.AST.Enum.Direction;
-import Phaser.AST.Enum.InfoType;
-import Phaser.AST.Enum.Operator;
-import Phaser.AST.Expression.*;
-import Phaser.AST.Expression.Number;
-import Phaser.AST.Statement.*;
-import Phaser.AST.Statement.Command.Command;
-import Phaser.AST.Statement.Command.atkCommand;
-import Phaser.AST.Statement.Command.doneCommand;
-import Phaser.AST.Statement.Command.moveCommand;
+import Parser.AST.Enum.Direction;
+import Parser.AST.Enum.InfoType;
+import Parser.AST.Enum.Operator;
+import Parser.AST.Expression.*;
+import Parser.AST.Expression.Number;
+import Parser.AST.Statement.*;
+import Parser.AST.Statement.Command.Command;
+import Parser.AST.Statement.Command.atkCommand;
+import Parser.AST.Statement.Command.doneCommand;
+import Parser.AST.Statement.Command.moveCommand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +24,22 @@ public class parser {
             "upright", "while"
     );
 
+    /**
+     * Constructor
+     * @param msg != null && should have length at least 1
+     * effect: change value of tk variable
+     */
     public parser(String msg) {
         tk = new tokenizer(msg);
     }
 
+    /**
+     * Parse value from tokenizer
+     * @return Statement object that ready to execute.
+     * @throws Exception from library List,method parseStatement(), BlockStatement()
+     * effect: create list contain Statement object
+     * effect: create Statement object from method parseStatement()
+     */
     public Statement parse() throws Exception {
         List<Statement> statements = new ArrayList<>();
         while (tk.hasNextToken()) {
@@ -37,6 +48,18 @@ public class parser {
         return new BlockStatement(statements);
     }
 
+    /**
+     * Pares value in Statement :Grammar - Statement → Command | BlockStatement | IfStatement | WhileStatement
+     * @return Statement object from AST
+     * @throws Exception from method parseStatement(), BlockStatement(), parseCommand(), parseExpression(), ifStatement(),whileStatement() ,tokenizer
+     * @throws IllegalArgumentException "Expected '(' after if." if next token after "if" isn't "(".
+     * @throws IllegalArgumentException "Expect ')' after condition from if-statement" if next token after Expression isn't ")".
+     * @throws IllegalArgumentException "Expect 'then' after if condition" if next token after ")" isn't "then".
+     * @throws IllegalArgumentException "Expect 'else' after if condition" if next token after Statement isn't "else".
+     * @throws IllegalArgumentException "Expect '(' after while" if next token after "while" isn't "(".
+     * @throws IllegalArgumentException "Expect ')' after condition from while-statement" if next token after Expression isn't ")".
+     * effect: create Statement object
+     */
     private Statement parseStatement() throws Exception {
         if (tk.peek("{")) {
             tk.consume("{");
@@ -67,7 +90,7 @@ public class parser {
                 if (!tk.peek("(")) throw new IllegalArgumentException("Expect '(' after while");
                 tk.consume("(");
                 Expr con = parseExpression();
-                if (!tk.peek(")")) throw new IllegalArgumentException("Expect ')' after condition from while-statement but found '" + tk.peek() + "'.");
+                if (!tk.peek(")")) throw new IllegalArgumentException("Expect ')' after condition from while-statement.");
                 tk.consume(")");
                 Statement state = parseStatement();
                 return new whileStatement(con, state);
@@ -86,7 +109,12 @@ public class parser {
             }
         }
     }
-
+    /**
+     * Pares value in Statement :Grammar - Command → AssignmentStatement | ActionCommand
+     * @param cur != null
+     * @return return Command Object from AST
+     * @throws IllegalArgumentException " Unrecognized command " if cur doesn't contain registered command.
+     */
     private Command parseCommand(String cur) throws Exception {
         switch (cur) {
             case "move" -> {
@@ -104,28 +132,40 @@ public class parser {
         }
         throw new IllegalArgumentException("Unrecognized command: " + cur);
     }
-
+    /**
+     * Pares value in Statement :Grammar - Expression → Expression + Term | Expression - Term | Term
+     * @return Expr Object from AST
+     * @throws IllegalArgumentException "Expect NUMBER after OPERATOR." if string value after + || - isn't NUMBER
+     */
     private Expr parseExpression() throws Exception {
         Expr e = parseTerm();
         while (tk.hasNextToken() && (tk.peek().equals("+") || tk.peek().equals("-"))) {
             Operator op = getOperator(tk.consume());
-            if (!tk.hasNextToken()) throw new IllegalArgumentException("ERROR:Expect NUMBER after OPERATOR.");
+            if (!tk.hasNextToken()) throw new IllegalArgumentException("Expect NUMBER after OPERATOR.");
             e = new BinaryExpr(e, op, parseTerm());
         }
         return e;
     }
-
+    /**
+     * Pares value in Statement :Grammar - Term → Term * Factor | Term / Factor | Term % Factor | Factor
+     * @return Expr Object from AST
+     * @throws IllegalArgumentException "Expect NUMBER after OPERATOR." if string value after * || / || % isn't NUMBER
+     */
     private Expr parseTerm() throws Exception {
         Expr e = parsePower();
         while (tk.hasNextToken() && (tk.peek().equals("*") || tk.peek().equals("/") || tk.peek().equals("%"))) {
             Operator op = getOperator(tk.consume());
-            if (!tk.hasNextToken()) throw new IllegalArgumentException("ERROR:Expect NUMBER after OPERATOR.");
+            if (!tk.hasNextToken()) throw new IllegalArgumentException("Expect NUMBER after OPERATOR.");
             Expr right = parseFactor();
             e = new BinaryExpr(e, op, right);
         }
         return e;
     }
-
+    /**
+     * Pares value in Statement :Grammar - Factor → Power ^ Factor | Power
+     * @return Expr Object from AST
+     * @throws IllegalArgumentException "Expect NUMBER after OPERATOR." if string value after ^ isn't NUMBER
+     */
     private Expr parsePower() throws Exception {
         Expr e = parseFactor();
         while (tk.hasNextToken() && tk.peek().equals("^")) {
@@ -136,20 +176,30 @@ public class parser {
         return e;
     }
 
+    /**
+     * Pares value in Statement :Grammar - Power → <number> | <identifier> | ( Expression ) | InfoExpression
+     * @return Expr Object from AST
+     * @throws IllegalArgumentException "Expect NUMBER before OPERATOR." if string value before operator isn't NUMBER
+     * @throws IllegalArgumentException "NUMBER cannot be negative." if receive negative number
+     * @throws IllegalArgumentException "INVALID OPERATOR" if receive duel operator ex. +- ++ -- /%
+     * @throws IllegalArgumentException "')' expected." if after Expression doesn't have ')'
+     * @throws IllegalArgumentException "Unexpected token." if receive something other than grammar
+     * @throws IllegalArgumentException "Line is empty." if recieve empty string
+     */
     private Expr parseFactor() throws Exception {
         if (tk.hasNextToken()) {
             if (tk.peek().equals("-")) {
                 tk.consume("-");
-                if (!tk.hasNextToken()) throw new IllegalArgumentException("ERROR:INVALID OPERATOR");
+                if (!tk.hasNextToken()) throw new IllegalArgumentException("Expect NUMBER before OPERATOR.");
 
                 if (isNumeric(tk.peek()) || isIdentifier(tk.peek())) {
-                    throw new IllegalArgumentException("ERROR:NUMBER cannot be negative.");
+                    throw new IllegalArgumentException("NUMBER cannot be negative.");
                 } else {
-                    throw new IllegalArgumentException("ERROR:INVALID OPERATOR");
+                    throw new IllegalArgumentException("INVALID OPERATOR");
                 }
             }
             else if (tk.peek().equals("+") || tk.peek().equals("*") || tk.peek().equals("/") || tk.peek().equals("%")) {
-                throw new IllegalArgumentException("ERROR:Expect NUMBER before OPERATOR.");
+                throw new IllegalArgumentException("Expect NUMBER before OPERATOR.");
             }
             if (isNumeric(tk.peek())) {
                 String tok = tk.consume();
@@ -162,12 +212,12 @@ public class parser {
             else if (tk.peek().equals("(")) {
                 tk.consume("(");
                 if (tk.hasNextToken() && (tk.peek().equals("+") || tk.peek().equals("-") || tk.peek().equals("%") || tk.peek().equals("*") || tk.peek().equals("/")))
-                    throw new IllegalArgumentException("ERROR:Expect NUMBER before OPERATOR.");
+                    throw new IllegalArgumentException("NUMBER before OPERATOR.");
 
                 Expr e = parseExpression();
 
                 if (!tk.hasNextToken() || !tk.peek().equals(")")) {
-                    throw new IllegalArgumentException("ERROR:')' expected.");
+                    throw new IllegalArgumentException("')' expected.");
                 }
                 tk.consume(")");
                 return e;
@@ -182,13 +232,17 @@ public class parser {
                 Direction dir = getDirectionType(tk.consume());
                 return new InfoExpr(InfoType.NEARBY, dir);
             } else {
-                throw new IllegalArgumentException("ERROR: Unexpected token.");
+                throw new IllegalArgumentException("Unexpected token.");
             }
         } else {
-            throw new IllegalArgumentException("ERROR:Line is empty.");
+            throw new IllegalArgumentException("Line is empty.");
         }
     }
-
+    /**
+     * Check is incoming string is Numeric
+     * @param str != null
+     * @return is string contain only Digit.
+     */
     private boolean isNumeric(String str) {
         if (str == null || str.isEmpty()) return false;
         for (int i = 0; i < str.length(); i++) {
@@ -199,7 +253,11 @@ public class parser {
         }
         return true;
     }
-
+    /**
+     * Check incoming string is Identifier
+     * @param s != null
+     * @return is s a reserved Word? and s contain Alphabetic and Digit.
+     */
     private boolean isIdentifier(String s) {
         if (s == null || s.isEmpty()) return false;
 
@@ -213,6 +271,12 @@ public class parser {
         return !reservedWords.contains(s);
     }
 
+    /**
+     * Convert String -> Enum of Direction
+     * @param dir != null && dir is "up || down || upleft || upright || downleft || downright"
+     * @return Enum Direction
+     * @throws IllegalArgumentException "Invalid direction" if there is no registered direction in Enum
+     */
     private Direction getDirectionType(String dir) {
         return switch (dir) {
             case "up" -> Direction.UP;
@@ -221,10 +285,16 @@ public class parser {
             case "upright" -> Direction.UP_RIGHT;
             case "downleft" -> Direction.DOWN_LEFT;
             case "downright" -> Direction.DOWN_RIGHT;
-            default -> throw new IllegalArgumentException("ERROR:Invalid direction.");
+            default -> throw new IllegalArgumentException("Invalid direction.");
         };
     }
 
+    /**
+     * Convert String -> Enum of Direction
+     * @param token != null && dir is "* || + || - || / || % || ^"
+     * @return Enum Direction
+     * @throws IllegalArgumentException "Unknown operator" if there is no registered operator in Enum
+     */
     private Operator getOperator(String token) {
         return switch (token) {
             case "+" -> Operator.PLUS;

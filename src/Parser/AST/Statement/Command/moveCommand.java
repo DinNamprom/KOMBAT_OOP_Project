@@ -1,6 +1,6 @@
-package Phaser.AST.Statement.Command;
+package Parser.AST.Statement.Command;
 
-import Phaser.AST.Enum.Direction;
+import Parser.AST.Enum.Direction;
 
 import java.util.Map;
 

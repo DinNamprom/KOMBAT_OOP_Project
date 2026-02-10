@@ -1,4 +1,4 @@
-package Phaser.AST.Enum;
+package Parser.AST.Enum;
 
 public enum Operator {
     PLUS,

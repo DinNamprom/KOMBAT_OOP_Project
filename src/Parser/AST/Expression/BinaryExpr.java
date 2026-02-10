@@ -1,6 +1,6 @@
-package Phaser.AST.Expression;
+package Parser.AST.Expression;
 
-import Phaser.AST.Enum.Operator;
+import Parser.AST.Enum.Operator;
 
 import java.util.Map;
 

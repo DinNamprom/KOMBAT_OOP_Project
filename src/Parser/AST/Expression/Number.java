@@ -1,4 +1,4 @@
-package Phaser.AST.Expression;
+package Parser.AST.Expression;
 
 import java.util.Map;
 

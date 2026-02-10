@@ -1,4 +1,4 @@
-package Phaser.AST.Statement.Command;
+package Parser.AST.Statement.Command;
 
 import java.util.Map;
 

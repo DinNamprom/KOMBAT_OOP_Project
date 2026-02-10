@@ -1,6 +1,6 @@
-package Phaser.AST.Statement;
+package Parser.AST.Statement;
 
-import Phaser.AST.Expression.Expr;
+import Parser.AST.Expression.Expr;
 
 import java.util.Map;
 

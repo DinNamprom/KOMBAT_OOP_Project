@@ -1,7 +1,7 @@
-package Phaser.AST.Expression;
+package Parser.AST.Expression;
 
-import Phaser.AST.Enum.Direction;
-import Phaser.AST.Enum.InfoType;
+import Parser.AST.Enum.Direction;
+import Parser.AST.Enum.InfoType;
 
 import java.util.Map;
 

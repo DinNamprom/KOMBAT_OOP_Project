@@ -40,8 +40,8 @@ public class parser {
      * effect: create list contain Statement object
      * effect: create Statement object from method parseStatement()
      */
-    public Statement parse() throws Exception {
-        List<Statement> statements = new ArrayList<>();
+    public statement parse() throws Exception {
+        List<statement> statements = new ArrayList<>();
         while (tk.hasNextToken()) {
             statements.add(parseStatement());
         }
@@ -60,10 +60,10 @@ public class parser {
      * @throws IllegalArgumentException "Expect ')' after condition from while-statement" if next token after Expression isn't ")".
      * effect: create Statement object
      */
-    private Statement parseStatement() throws Exception {
+    private statement parseStatement() throws Exception {
         if (tk.peek("{")) {
             tk.consume("{");
-            List<Statement> stmts = new ArrayList<>();
+            List<statement> stmts = new ArrayList<>();
             while (!tk.peek("}")) {
                 stmts.add(parseStatement());
             }
@@ -80,10 +80,10 @@ public class parser {
                 tk.consume(")");
                 if (!tk.peek("then")) throw new IllegalArgumentException("Expect 'then' after if condition");
                 tk.consume("then");
-                Statement state = parseStatement();
+                statement state = parseStatement();
                 if (!tk.peek("else")) throw new IllegalArgumentException("Expect 'else' in if-statement");
                 tk.consume("else");
-                Statement elseState = parseStatement();
+                statement elseState = parseStatement();
                 return new ifStatement(con, state, elseState);
             }
             else if (cur.equals("while")) {
@@ -92,7 +92,7 @@ public class parser {
                 Expr con = parseExpression();
                 if (!tk.peek(")")) throw new IllegalArgumentException("Expect ')' after condition from while-statement.");
                 tk.consume(")");
-                Statement state = parseStatement();
+                statement state = parseStatement();
                 return new whileStatement(con, state);
             }
             else {
@@ -229,6 +229,7 @@ public class parser {
                 return new InfoExpr(InfoType.OPPONENT);
             }else if (tk.peek().equals("nearby")){
                 tk.consume("nearby");
+                if (!tk.hasNextToken()) throw new IllegalArgumentException("Expect DIRECTION.");
                 Direction dir = getDirectionType(tk.consume());
                 return new InfoExpr(InfoType.NEARBY, dir);
             } else {

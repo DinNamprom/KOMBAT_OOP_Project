@@ -3,15 +3,11 @@ package Parser.AST.Statement;
 import java.util.List;
 import java.util.Map;
 
-public record BlockStatement(List<Statement> statements) implements Statement {
-    @Override
-    public Long eval(Map<String, Long> var) {
-        return null;
-    }
+public record BlockStatement(List<statement> statements) implements statement {
 
     @Override
     public Boolean exe(Map<String, Long> var) {
-        for (Statement s : statements) {
+        for (statement s : statements) {
             boolean continueExecution = s.exe(var);
 
             if (!continueExecution) {
@@ -24,7 +20,7 @@ public record BlockStatement(List<Statement> statements) implements Statement {
     @Override
     public void prettyPrint(StringBuilder sb) {
         sb.append("{\n");
-        for (Statement s : statements) {
+        for (statement s : statements) {
             sb.append("    "); // ย่อหน้าหน่อยจะได้สวย
             s.prettyPrint(sb);
             sb.append("\n");

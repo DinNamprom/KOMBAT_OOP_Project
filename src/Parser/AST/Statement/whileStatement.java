@@ -4,11 +4,7 @@ import Parser.AST.Expression.Expr;
 
 import java.util.Map;
 
-public record whileStatement(Expr con, Statement state) implements Statement {
-    @Override
-    public Long eval(Map<String, Long> var) {
-        return 0L;
-    }
+public record whileStatement(Expr con, statement state) implements statement {
 
     @Override
     public Boolean exe(Map<String, Long> var) {

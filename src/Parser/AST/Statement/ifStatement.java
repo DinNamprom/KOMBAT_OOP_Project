@@ -4,11 +4,7 @@ import Parser.AST.Expression.Expr;
 
 import java.util.Map;
 
-public record ifStatement(Expr val, Statement state, Statement elseState) implements Statement {
-    @Override
-    public Long eval(Map<String, Long> var) {
-        return 0L;
-    }
+public record ifStatement(Expr val, statement state, statement elseState) implements statement {
 
     @Override
     public Boolean exe(Map<String, Long> var) {

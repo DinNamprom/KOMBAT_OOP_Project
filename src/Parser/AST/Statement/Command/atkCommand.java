@@ -6,16 +6,12 @@ import Parser.AST.Expression.Expr;
 import java.util.Map;
 
 public record atkCommand(Direction dir, Expr pwr) implements Command {
-    @Override
-    public Long eval(Map<String, Long> var) {
-        return 0L;
-    }
 
     @Override
     public Boolean exe(Map<String, Long> var) {
         //Execute Attack Command
         long dmg = pwr.eval(var);
-        System.out.println("-> [ACTION] Robot Attack: " + dmg + " dmg");
+        System.out.println("-> [ACTION] Attack: " + dmg + " dmg");
         return true;
     }
 

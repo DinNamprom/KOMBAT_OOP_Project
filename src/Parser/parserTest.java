@@ -76,9 +76,7 @@ class parserTest {
         String output = outContent.toString();
 
         assertTrue(execResult);
-        // เช็คว่า Sensor ทำงาน
         assertTrue(output.contains("Checking Nearby Direction") || output.contains("nearby"));
-        // เช็คว่าค่า Default ของ nearby (10) ถูกนำไปใช้คำนวณดาเมจ
         assertTrue(output.contains("-> [ACTION] Attack: 10 dmg"));
     }
 
@@ -95,5 +93,61 @@ class parserTest {
         }
 
         assertFalse(execResult);
+    }
+
+    @Test
+    public void testParseAndExec_IfStatement() throws Exception {
+        String input = "if (hp - 0) then x = 1 else x = 0";
+        bindings.put("hp", 100L);
+
+        parser p = new parser(input);
+        statement result = p.parse();
+
+        if (result != null) {
+            result.exe(bindings);
+        }
+
+        assertEquals(1L, bindings.get("x"));
+
+        bindings.clear();
+        bindings.put("hp", -10L);
+        p = new parser(input);
+        result = p.parse();
+
+        if (result != null) {
+            result.exe(bindings);
+        }
+
+        assertEquals(0L, bindings.get("x"));
+    }
+
+    @Test
+    public void testParseAndExec_WhileStatement() throws Exception {
+        String input = "while (count - 0) { total = total + 1 count = count - 1 }";
+        bindings.put("count", 3L);
+        bindings.put("total", 0L);
+
+        parser p = new parser(input);
+        statement result = p.parse();
+
+        if (result != null) {
+            result.exe(bindings);
+        }
+
+        assertEquals(3L, bindings.get("total"));
+        assertEquals(0L, bindings.get("count"));
+    }
+
+    @Test
+    public void testExpression_Precedence() throws Exception {
+        String input = "result = 1 + 2 * 3 / (4 - 2)";
+        parser p = new parser(input);
+        statement result = p.parse();
+
+        if (result != null) {
+            result.exe(bindings);
+        }
+
+        assertEquals(4L, bindings.get("result"));
     }
 }

@@ -6,6 +6,7 @@ public class Grid {
     private final int row;
     private final int col;
     private Grid up,down,upleft,downleft,upright,downright;
+    private boolean buyable = false;
     // variable for minion list
     public Grid(int row, int col) {
         this.row = row;
@@ -14,6 +15,7 @@ public class Grid {
 
     public int getRow() {return row;}
     public int getCol() {return col;}
+    public boolean isBuyable() {return buyable;}
 
     public Grid getGrid(Direction direction) {
         return switch (direction) {

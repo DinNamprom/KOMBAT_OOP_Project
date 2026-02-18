@@ -1,14 +1,14 @@
 package Parser.AST.Statement.Command;
 
+import Minion.minion;
 import Parser.AST.Enum.Direction;
-
-import java.util.Map;
 
 public record moveCommand(Direction dir) implements Command {
 
     @Override
-    public Boolean exe(Map<String, Long> var) {
+    public Boolean exe(minion minion) {
         // Execute move command
+        minion.move(dir);
         IO.println("-> [ACTION] Move: " + dir.toString());
         return true;
     }

@@ -1,14 +1,13 @@
 package Parser.AST.Expression;
 
+import Minion.minion;
 import Parser.AST.Enum.Operator;
-
-import java.util.Map;
 
 public record BinaryExpr(Expr left, Operator op, Expr right) implements Expr {
     @Override
-    public Long eval(Map<String, Long> var) {
-        Long left = this.left.eval(var);
-        Long right = this.right.eval(var);
+    public Long eval(minion minion) {
+        Long left = this.left.eval(minion);
+        Long right = this.right.eval(minion);
         return switch (op) {
             case PLUS -> left + right;
             case MINUS -> left - right;
@@ -39,7 +38,6 @@ public record BinaryExpr(Expr left, Operator op, Expr right) implements Expr {
         left.prettyPrint(sb);
         sb.append(" ");
 
-        // แปลง Enum กลับเป็นเครื่องหมาย
         String symbol = switch (op) {
             case PLUS -> "+";
             case MINUS -> "-";

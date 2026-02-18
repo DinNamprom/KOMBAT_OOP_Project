@@ -1,10 +1,10 @@
 package Parser.AST.Expression;
 
-import java.util.Map;
+import Minion.minion;
 
 public record Number(long l) implements Expr {
     @Override
-    public Long eval(Map<String, Long> var) {
+    public Long eval(minion minion) {
         return l;
     }
 

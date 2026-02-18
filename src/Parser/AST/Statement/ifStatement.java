@@ -1,17 +1,16 @@
 package Parser.AST.Statement;
 
+import Minion.minion;
 import Parser.AST.Expression.Expr;
-
-import java.util.Map;
 
 public record ifStatement(Expr val, statement state, statement elseState) implements statement {
 
     @Override
-    public Boolean exe(Map<String, Long> var) {
-        if (val.eval(var) > 0) {
-            return state.exe(var);
+    public Boolean exe(minion minion) {
+        if (val.eval(minion) > 0) {
+            return state.exe(minion);
         } else {
-            return elseState.exe(var);
+            return elseState.exe(minion);
         }
     }
 

@@ -1,5 +1,6 @@
 package Board;
 
+import Minion.minion;
 import Parser.AST.Enum.Direction;
 
 public class Grid {
@@ -7,7 +8,7 @@ public class Grid {
     private final int col;
     private Grid up,down,upleft,downleft,upright,downright;
     private boolean buyable = false;
-    // variable for minion list
+    private minion minion;
     public Grid(int row, int col) {
         this.row = row;
         this.col = col;
@@ -16,6 +17,10 @@ public class Grid {
     public int getRow() {return row;}
     public int getCol() {return col;}
     public boolean isBuyable() {return buyable;}
+    public void setBuyable(boolean buyable) {this.buyable = buyable;}
+    public minion getMinion() {return minion;}
+    public void addMinion(minion m) {minion=m;}
+    public void removeMinion() {minion=null;}
 
     public Grid getGrid(Direction direction) {
         return switch (direction) {
@@ -147,7 +152,7 @@ public class Grid {
         if (isEven(col)) return downleft;
         return upleft;
     }
-
+    public boolean haveMinion() {return minion != null;}
     public static boolean isEven(int i) {
         return i%2==0;
     }

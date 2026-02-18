@@ -1,11 +1,11 @@
 package Parser.AST.Statement.Command;
 
-import java.util.Map;
+import Minion.minion;
 
 public record doneCommand() implements Command {
 
     @Override
-    public Boolean exe(Map<String, Long> var) {
+    public Boolean exe(minion minion) {
         return false;
     }
 

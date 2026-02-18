@@ -1,14 +1,15 @@
 package Parser.AST.Statement;
 
+import Minion.minion;
+
 import java.util.List;
-import java.util.Map;
 
 public record BlockStatement(List<statement> statements) implements statement {
 
     @Override
-    public Boolean exe(Map<String, Long> var) {
+    public Boolean exe(minion minion) {
         for (statement s : statements) {
-            boolean continueExecution = s.exe(var);
+            boolean continueExecution = s.exe(minion);
 
             if (!continueExecution) {
                 return false;

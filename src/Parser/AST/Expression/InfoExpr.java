@@ -1,9 +1,8 @@
 package Parser.AST.Expression;
 
+import Minion.minion;
 import Parser.AST.Enum.Direction;
 import Parser.AST.Enum.InfoType;
-
-import java.util.Map;
 
 public record InfoExpr(InfoType info, Direction dir) implements Expr {
 
@@ -11,19 +10,19 @@ public record InfoExpr(InfoType info, Direction dir) implements Expr {
         this(type, null);
     }
     @Override
-    public Long eval(Map<String, Long> var) {
+    public Long eval(minion minion) {
         switch (info) {
             case ALLY -> {
                 IO.println("   [SENSOR] Checking Ally...");
-                return  1L;
+                return  minion.Check(InfoType.ALLY);
             } //add Ally compute later
             case OPPONENT -> {
                 IO.println("   [SENSOR] Checking Opponent...");
-                return 1L;
+                return minion.Check(InfoType.OPPONENT);
             } // same as ally
             case NEARBY -> {
                 IO.println("   [SENSOR] Checking Nearby Direction " + dir.toString() + "...");
-                return 10L;
+                return minion.CheckDir(InfoType.NEARBY, dir);
             }// add Nearby direction later
         }
         return 0L;

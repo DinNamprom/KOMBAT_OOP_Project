@@ -1,12 +1,12 @@
 package Parser.AST.Expression;
 
-import java.util.Map;
+import Minion.minion;
 
 public record Variable(String name) implements Expr {
     @Override
-    public Long eval(Map<String, Long> var) {
-        if (var.containsKey(name)) {
-            return var.get(name);
+    public Long eval(minion minion) {
+        if (minion.getVariable().containsKey(name)) {
+            return minion.getVariable().get(name);
         }
         throw new RuntimeException("ERROR: undefined variable: " + name);
     }

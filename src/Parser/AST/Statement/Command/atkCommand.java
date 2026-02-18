@@ -1,17 +1,22 @@
 package Parser.AST.Statement.Command;
 
+import Minion.minion;
 import Parser.AST.Enum.Direction;
 import Parser.AST.Expression.Expr;
-
-import java.util.Map;
 
 public record atkCommand(Direction dir, Expr pwr) implements Command {
 
     @Override
-    public Boolean exe(Map<String, Long> var) {
+    public Boolean exe(minion minion) {
         //Execute Attack Command
-        long dmg = pwr.eval(var);
-        System.out.println("-> [ACTION] Attack: " + dmg + " dmg");
+        long dmg = pwr.eval(minion);
+        if (dmg <= 0) return false;
+        long current_budget = minion.getVariable().getOrDefault("budget", 0L);
+        long total_cost = dmg + 1;
+        if (current_budget < total_cost) return false;
+        minion.getVariable().put("budget", current_budget - total_cost);
+        System.out.println("-> [ACTION] Attack: " + dmg + " cost: " + total_cost);
+        minion.Shoot(dir, dmg);
         return true;
     }
 

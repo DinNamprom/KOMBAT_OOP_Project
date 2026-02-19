@@ -8,9 +8,16 @@ public record moveCommand(Direction dir) implements Command {
     @Override
     public Boolean exe(minion minion) {
         // Execute move command
-        minion.move(dir);
-        IO.println("-> [ACTION] Move: " + dir.toString());
-        return true;
+        long cost = minion.cost;
+        long cur_budget = minion.getOwner().getBudget();
+
+        if (cur_budget < cost) return false;
+        if (minion.move(dir)) {
+            minion.getOwner().decreaseBudget(cost);
+            IO.println("-> [ACTION] Move: " + dir.toString());
+            return true;
+        }
+        return false;
     }
 
     @Override

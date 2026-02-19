@@ -8,6 +8,9 @@ public record Variable(String name) implements Expr {
         if (minion.getVariable().containsKey(name)) {
             return minion.getVariable().get(name);
         }
+        if (name.equals("Budget")) {
+            return minion.getOwner().getBudget();
+        }
         throw new RuntimeException("ERROR: undefined variable: " + name);
     }
 

@@ -1,9 +1,10 @@
+package Config;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
- class gameconfig {
-    public static class GameConfig {
+public class GameConfig {
         public long initSpawnCost;
         public long HexCost;
         public long initBudget;
@@ -19,10 +20,10 @@ import java.util.Properties;
 
         /**
          * เมธอดสำหรับโหลดไฟล์ config จาก path ที่กำหนด
+         *
          * @param filePath ที่อยู่ของไฟล์ configuration
-         * @return Object GameConfig ที่บรรจุค่าเรียบร้อยแล้ว
          */
-        public static GameConfig load(String filePath) throws IOException {
+        public void load(String filePath) throws IOException {
             Properties props = new Properties();
 
             // ใช้ try-with-resources เพื่อปิดไฟล์อัตโนมัติ
@@ -30,18 +31,16 @@ import java.util.Properties;
                 props.load(fis);
             }
 
-            GameConfig config = new GameConfig();
-
             try {
-                config.initSpawnCost = Long.parseLong(props.getProperty("spawn_cost"));
-                config.HexCost = Long.parseLong(props.getProperty("hex_purchase_cost"));
-                config.initBudget = Long.parseLong(props.getProperty("init_budget"));
-                config.initHp = Long.parseLong(props.getProperty("init_hp"));
-                config.turnBudget = Long.parseLong(props.getProperty("turn_budget"));
-                config.maxBudget = Long.parseLong(props.getProperty("max_budget"));
-                config.TurnInterest = Long.parseLong(props.getProperty("interest_pct"));
-                config.maxTurns = Long.parseLong(props.getProperty("max_turns"));
-                config.maxSpawns = Long.parseLong(props.getProperty("max_spawns"));
+                this.initSpawnCost = Long.parseLong(props.getProperty("spawn_cost"));
+                this.HexCost = Long.parseLong(props.getProperty("hex_purchase_cost"));
+                this.initBudget = Long.parseLong(props.getProperty("init_budget"));
+                this.initHp = Long.parseLong(props.getProperty("init_hp"));
+                this.turnBudget = Long.parseLong(props.getProperty("turn_budget"));
+                this.maxBudget = Long.parseLong(props.getProperty("max_budget"));
+                this.TurnInterest = Long.parseLong(props.getProperty("interest_pct"));
+                this.maxTurns = Long.parseLong(props.getProperty("max_turns"));
+                this.maxSpawns = Long.parseLong(props.getProperty("max_spawns"));
             } catch (NumberFormatException e) {
                 System.err.println("Error: Config Value Must Be Long ");
                 throw e;
@@ -50,7 +49,6 @@ import java.util.Properties;
                 throw e;
             }
 
-            return config;
         }
 
         @Override
@@ -67,21 +65,5 @@ import java.util.Properties;
                     "\n  max_spawns=" + maxSpawns +
                     "\n}";
         }
-
-
-        public static void main(String[] args) {
-
-            String configFilePath = "config.txt";
-
-            try {
-                GameConfig config = GameConfig.load(configFilePath);
-                System.out.println("Complete Loading Config file:");
-                System.out.println(config);
-            } catch (IOException e) {
-                System.err.println("Cannot read Config file: " + e.getMessage());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }
+

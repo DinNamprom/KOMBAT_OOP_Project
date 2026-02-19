@@ -2,7 +2,7 @@ package Board;
 
 public class Board {
     private Grid current;
-    private int max_row,max_col;
+    private final int max_row,max_col;
     public Board(int row, int col) {
         current = new Grid(1,1);
         current.createBoard(row,col);
@@ -15,6 +15,9 @@ public class Board {
         this.max_row = 8;
         this.max_col = 8;
     }
+
+    public int max_row() {return this.max_row;}
+    public int max_col() {return this.max_col;}
 
     public Grid getCurrent() {
         return current;

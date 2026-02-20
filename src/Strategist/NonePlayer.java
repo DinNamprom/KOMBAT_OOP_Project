@@ -19,6 +19,12 @@ public class NonePlayer extends Player{
     public Map<String, Long> getGolbVariables() {
         return super.getGolbVariables();
     }
+
+    @Override
+    public String getName() {
+        return super.getName();
+    }
+
     @Override
     public void addMinion(minion minion) {
         super.addMinion(minion);
@@ -89,5 +95,15 @@ public class NonePlayer extends Player{
         super.addGolb_variable();
     }
 
-    public void auto_action() {return;}
+    @Override
+    public boolean get_player_dir() {
+        return super.get_player_dir();
+    }
+
+    @Override
+    public void set_player_dir(boolean player_dir) {
+        super.set_player_dir(player_dir);
+    }
+
+    public void auto_action() {}
 }

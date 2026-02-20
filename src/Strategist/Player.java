@@ -16,13 +16,20 @@ public class Player implements Strategist{
     private long minionsCreated = 0;
     private final long max_minionsCreate;
     private List<Grid> grids = new ArrayList<>();
-    private String name;
+    private final String name;
     private Map<String, Long> golb_variable = new HashMap<>();
+    private boolean inverse = false;
 
     public Player(String name, long maxMinionsCreate){
         this.name = name;
         this.max_minionsCreate = maxMinionsCreate;
     }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
     @Override
     public List<minion> getMinions() {
         return Minions;
@@ -110,5 +117,15 @@ public class Player implements Strategist{
         for (minion m : Minions) {
             m.setVariable(golb_variable);
         }
+    }
+
+    @Override
+    public boolean get_player_dir() {
+        return inverse;
+    }
+
+    @Override
+    public void set_player_dir(boolean player_dir) {
+        inverse = player_dir;
     }
 }

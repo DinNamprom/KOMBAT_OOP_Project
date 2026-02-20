@@ -11,6 +11,7 @@ import java.util.Map;
 public interface Strategist {
     List<minion> getMinions();
     Map<String, Long> getGolbVariables();
+    String getName();
     void addMinion(minion minion);
     void removeMinion(minion minion);
     long getBudget();
@@ -27,4 +28,6 @@ public interface Strategist {
     void updateVariable();
     void checkGolb_variable();
     void addGolb_variable();
+    boolean get_player_dir();
+    void set_player_dir(boolean player_dir);
 }

@@ -20,7 +20,6 @@ public class minion {
     private int col;
     private Map<String, Long> variable;
     private final statement action;
-    private boolean isDead = false;
     private boolean inverse = false;
     private final long num;
 
@@ -45,7 +44,6 @@ public class minion {
     public void setInverse(boolean inv) { inverse = inv; }
     public void resetInverse() { inverse = false; }
     public boolean getInvert() { return inverse; }
-    public boolean isDead() { return isDead; }
 
     public void setGrid(Grid grid) { this.grid = grid; }
 
@@ -156,15 +154,16 @@ public class minion {
     }
     public void receive_dmg(long dmg) {
         this.hp -= dmg;
-        if(this.hp <= 0L) {
+        if(isDead()) {
             this.hp = 0;
             if(this.grid != null) {
                 this.grid.removeMinion();
                 this.grid = null;
             }
-            isDead = true;
         }
     }
+
+    public boolean isDead() { return this.hp <= 0;}
 
     public void check_variable(Map<String, Long> golb_variable) {
         check_golbvar(golb_variable, variable);

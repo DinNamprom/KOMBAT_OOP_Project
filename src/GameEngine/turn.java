@@ -94,7 +94,7 @@ public class turn {
         Iterator<minion> it = p.getMinions().iterator();
         while (it.hasNext()) {
             minion m = it.next();
-            if (m.getHp() <= 0) {
+            if (m.isDead()) {
                 if (m.getGrid() != null) {
                     m.getGrid().removeMinion();
                     m.setGrid(null);

@@ -8,10 +8,6 @@ public record minion_kind(String name, long spawn_cost, long defenseFactor, Stri
         return spawn_cost;
     }
 
-    public long getDefenseFactor() {
-        return defenseFactor;
-    }
-
     public String getName() { return name; }
 
     public statement getStrategy() throws Exception {

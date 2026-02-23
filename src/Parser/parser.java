@@ -156,7 +156,7 @@ public class parser {
         while (tk.hasNextToken() && (tk.peek().equals("*") || tk.peek().equals("/") || tk.peek().equals("%"))) {
             Operator op = getOperator(tk.consume());
             if (!tk.hasNextToken()) throw new IllegalArgumentException("Expect NUMBER after OPERATOR.");
-            Expr right = parseFactor();
+            Expr right = parsePower();
             e = new BinaryExpr(e, op, right);
         }
         return e;
@@ -286,7 +286,7 @@ public class parser {
             case "upright" -> Direction.UP_RIGHT;
             case "downleft" -> Direction.DOWN_LEFT;
             case "downright" -> Direction.DOWN_RIGHT;
-            default -> throw new IllegalArgumentException("Invalid direction.");
+            default -> throw new IllegalArgumentException("Invalid direction." + dir);
         };
     }
 

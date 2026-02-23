@@ -2,12 +2,13 @@ package Board;
 
 import Minion.minion;
 import Parser.AST.Enum.Direction;
+import Strategist.Strategist;
 
 public class Grid {
     private final int row;
     private final int col;
     private Grid up,down,upleft,downleft,upright,downright;
-    private boolean buyable = false;
+    private Strategist spawnOwner = null;
     private minion minion;
     public Grid(int row, int col) {
         this.row = row;
@@ -16,11 +17,36 @@ public class Grid {
 
     public int getRow() {return row;}
     public int getCol() {return col;}
-    public boolean isBuyable() {return buyable;}
-    public void setBuyable(boolean buyable) {this.buyable = buyable;}
+
+    public Strategist getSpawnOwner() { return spawnOwner; }
+    public void setSpawnOwner(Strategist player) { this.spawnOwner = player; }
+    public boolean isSpawnable() { return spawnOwner != null; }
+
     public minion getMinion() {return minion;}
     public void addMinion(minion m) {minion=m;}
     public void removeMinion() {minion=null;}
+
+    //check if at least one nearby grid is owned and the grid owner is null
+    public boolean canBeBoughtBy(Strategist p) {
+        if (this.spawnOwner != null) {
+            return false;
+        }
+
+        Direction[] dirs = {
+                Direction.UP, Direction.DOWN,
+                Direction.UP_LEFT, Direction.UP_RIGHT,
+                Direction.DOWN_LEFT, Direction.DOWN_RIGHT
+        };
+
+        for (Direction dir : dirs) {
+            Grid neighbor = this.getGrid(dir);
+            if (neighbor != null && neighbor.getSpawnOwner() == p) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public Grid getGrid(Direction direction) {
         return switch (direction) {

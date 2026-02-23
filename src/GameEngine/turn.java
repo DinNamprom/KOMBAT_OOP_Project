@@ -46,10 +46,13 @@ public class turn {
     }
 
     public void buy_grid(Grid grid, Strategist p, long hex_cost) {
-        if (hex_cost <= p.getBudget()) {
-            p.addGrid(grid);
-            p.decreaseBudget(hex_cost);
-            p.updateVariable();
+        if (grid.canBeBoughtBy(p)){
+            if (hex_cost <= p.getBudget()) {
+                p.addGrid(grid);
+                grid.setSpawnOwner(p);
+                p.decreaseBudget(hex_cost);
+                p.updateVariable();
+            }
         }
     }
 

@@ -12,12 +12,12 @@ import java.util.Map;
 public class Player implements Strategist{
     private long Budget = 0;
     private long InterestRate = 0;
-    private List<minion> Minions = new ArrayList<>();
+    private final List<minion> Minions = new ArrayList<>();
     private long minionsCreated = 0;
     private final long max_minionsCreate;
-    private List<Grid> grids = new ArrayList<>();
+    private final List<Grid> grids = new ArrayList<>();
     private final String name;
-    private Map<String, Long> golb_variable = new HashMap<>();
+    private final Map<String, Long> golb_variable = new HashMap<>();
     private boolean inverse = false;
 
     public Player(String name, long maxMinionsCreate){
@@ -85,6 +85,7 @@ public class Player implements Strategist{
     @Override
     public void addGrid(Grid grid) {
         grids.add(grid);
+        grid.setSpawnOwner(this);
     }
 
     public void clearGrid(){

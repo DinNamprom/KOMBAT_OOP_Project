@@ -92,7 +92,7 @@ public class Stage {
         IO.println("Chose Action:\n 1.Buy Grid\n 2.Skip\n Action: ");
         int choice = user_input.nextInt();
         if (choice == 1) {
-            IO.println("Buy  Grid UI");
+            choose_grid(p);
         }
         boolean pass = false;
         do {
@@ -157,6 +157,48 @@ public class Stage {
         }
         current_turn++;
         return false;
+    }
+
+    public List<Grid> getBuyableGrids(Strategist p) {
+        List<Grid> buyable_grid = new ArrayList<Grid>();
+        for(Grid g : p.getGrids()) {
+            Direction[] dirs = {
+                    Direction.UP, Direction.DOWN,
+                    Direction.UP_LEFT, Direction.UP_RIGHT,
+                    Direction.DOWN_LEFT, Direction.DOWN_RIGHT
+            };
+            for (Direction dir : dirs) {
+                Grid neighbour = g.getGrid(dir);
+                if (neighbour != null && !neighbour.isSpawnable() && !buyable_grid.contains(neighbour)) buyable_grid.add(neighbour);
+            }
+        }
+        return buyable_grid;
+    }
+
+    public void choose_grid(Strategist p) {
+        List<Grid> buyable_grid = getBuyableGrids(p);
+        boolean buyGrid = false;
+
+        for (Grid g : buyable_grid) {
+            IO.print("[" + g.getRow() + "," + g.getCol() + "]:");
+        }
+        IO.println();
+        do {
+            IO.println("Choose Grid:");
+            int row = user_input.nextInt();
+            int col = user_input.nextInt();
+            try {
+                Grid target = board.getGrid(row, col);
+                if (buyable_grid.contains(target)) {
+                    p.addGrid(target);
+                    buyGrid = true;
+                }else {
+                    IO.println("This grid cannot be buy!");
+                }
+            } catch (Exception e) {
+                IO.println("Invalid Grid!");
+            }
+        }while(!buyGrid);
     }
 
     public void spawn_minion(Strategist p, turn t) throws Exception {

@@ -31,7 +31,7 @@ public class turn {
         Grid target_grid = board.getGrid(row, col);
         if (target_grid == null || target_grid.haveMinion()) return null;
         if (current_turn != 1) p.decreaseBudget(cost);
-        minion m = new minion(kind, p, config.initHp, row, col, p.getMinion_Create()+1);
+        minion m = new minion(kind, p, config.initHp, row, col);
         p.addMinion(m);
         target_grid.addMinion(m);
         m.setGrid(target_grid);

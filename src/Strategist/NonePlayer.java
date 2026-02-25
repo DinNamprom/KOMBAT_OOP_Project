@@ -2,10 +2,13 @@ package Strategist;
 
 import Board.Grid;
 import Config.GameConfig;
+import GameEngine.Stage;
+import GameEngine.turn;
 import Minion.minion;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NonePlayer extends Player{
 
@@ -105,5 +108,37 @@ public class NonePlayer extends Player{
         super.set_player_dir(player_dir);
     }
 
-    public void auto_action() {}
+    public void auto_action(turn t, Stage stage) {
+        List<Grid> buyableGrid = stage.getBuyableGrids(this);
+        AtomicBoolean buy = new AtomicBoolean(false);
+        long hex_cost = stage.getConfig().HexCost;
+        if (getBudget() > hex_cost) {
+            t.buy_grid(buyableGrid.getFirst(),this, hex_cost);
+        }
+        stage.getMinion_kinds().forEach((_, kind) -> {
+            if (getBudget() > kind.getSpawnCost() && !buy.get()) {
+                for (Grid g: getGrids()) {
+                    if (!g.haveMinion()) {
+                        if (!get_player_dir()) {
+                            try {
+                                t.buy_minion(this, kind, g.getRow(),g.getCol());
+                                buy.set(true);
+                                break;
+                            } catch (Exception e) {
+                                IO.println(e.getMessage());
+                            }
+                        }else {
+                            try {
+                                t.buy_minion_inverse(this,kind, g.getRow(), g.getCol());
+                                buy.set(true);
+                                break;
+                            } catch (Exception e) {
+                                IO.println(e.getMessage());
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 }

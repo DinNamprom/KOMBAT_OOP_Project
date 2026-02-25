@@ -4,7 +4,7 @@ import Board.Grid;
 import Parser.AST.Enum.Direction;
 import Parser.AST.Enum.InfoType;
 import Parser.AST.Statement.statement;
-import Strategist.Strategist;
+import Strategist.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,17 +13,16 @@ import java.util.Random;
 public class minion {
     private final minion_kind kind;
     private final Strategist owner;
-    public long cost;
+    public long cost = 1;
     private Grid grid;
     private long hp;
     private int row;
     private int col;
-    private Map<String, Long> variable;
+    private final Map<String, Long> variable;
     private final statement action;
     private boolean inverse = false;
-    private final long num;
 
-    public minion(minion_kind kind, Strategist owner, long initHp, int start_row, int start_col, long num) throws Exception {
+    public minion(minion_kind kind, Strategist owner, long initHp, int start_row, int start_col) throws Exception {
         this.kind = kind;
         this.owner = owner;
         this.hp = initHp;
@@ -31,7 +30,15 @@ public class minion {
         this.col = start_col;
         variable = new HashMap<>();
         action = this.kind.getStrategy();
-        this.num = num;
+    }
+
+    public minion(minion_kind kind) throws Exception {
+        this.kind = kind;
+        this.owner = new Player("", 41);
+        action = this.kind.getStrategy();
+        this.row = 0;
+        this.col = 0;
+        variable = new HashMap<>();
     }
 
     public minion_kind getKind() { return kind; }
@@ -122,7 +129,6 @@ public class minion {
             case UP_RIGHT -> 2L;
             case DOWN_LEFT -> 5L;
             case DOWN_RIGHT -> 3L;
-            case null, default -> 0L;
         };
     }
 

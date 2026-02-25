@@ -8,18 +8,16 @@ import Parser.AST.Enum.Direction;
 import Strategist.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Stage {
     private final long max_turn;
     private int current_turn = 1;
     private final GameConfig config;
-    private Strategist P1;
-    private Strategist P2;
+    private final int max_player = 2;
+    private final Map<String,Strategist> PlayerList = new HashMap<String,Strategist>();
     private final Mode mode;
-    private final List<minion_kind> minion_kinds = new ArrayList<>();
+    private final Map<String, minion_kind> minion_kinds = new HashMap<>();
     private final Board board;
     private final Scanner user_input = new Scanner(System.in);
 
@@ -31,53 +29,113 @@ public class Stage {
         this.board = board;
     }
 
-    public void create_player(String p1_name, String p2_name) {
-        switch(mode) {
+    public GameConfig getConfig() {
+        return config;
+    }
+
+    public Map<String, minion_kind> getMinion_kinds() {
+        return minion_kinds;
+    }
+
+    private void duel_mode() {
+        do {
+            IO.println("Enter Player's name:");
+            String name = user_input.nextLine();
+            if (PlayerList.containsKey(name)) {
+                IO.println("Player already exists!");
+                continue;
+            }
+            Strategist temp =  new Player(name,config.maxSpawns);
+            if (PlayerList.size()%2 == 1) {
+                temp.set_player_dir(true);
+            }
+            PlayerList.put(name,temp);
+        }while (PlayerList.size() < max_player);
+    }
+
+    private void solitaire_mode() {
+        do {
+            Strategist temp;
+            String name;
+            if (!PlayerList.isEmpty()) {
+                name = "Bot " + (PlayerList.size());
+                temp = new NonePlayer(name,config.maxSpawns);
+            }else {
+                IO.println("Enter Player's name:");
+                name = user_input.nextLine();
+                if (PlayerList.containsKey(name)) {
+                    IO.println("Player already exists!");
+                    continue;
+                }
+                temp = new Player(name,config.maxSpawns);
+            }
+            if (PlayerList.size()%2 == 1) {
+                temp.set_player_dir(true);
+            }
+            PlayerList.put(name,temp);
+        }while (PlayerList.size() < max_player);
+    }
+    private void auto_mode() {
+        do {
+            String name = "Bot " + (PlayerList.size()+1);
+            Strategist temp = new NonePlayer(name,config.maxSpawns);
+            if (PlayerList.size()%2 == 1) {
+                temp.set_player_dir(true);
+            }
+            PlayerList.put(name,temp);
+        }while (PlayerList.size() < max_player);
+    }
+
+    public void create_player() {
+        switch(this.mode) {
             case DUEL -> {
-                P1 = new Player(p1_name, config.maxSpawns);
-                P2 = new Player(p2_name, config.maxSpawns);
-                P2.set_player_dir(true);
+                duel_mode();
             }
             case SOLITAIRE -> {
-                P1 = new Player(p1_name, config.maxSpawns);
-                P2 = new NonePlayer(p2_name, config.maxSpawns);
-                P2.set_player_dir(true);
+                solitaire_mode();
             }
             case AUTO -> {
-                P1 = new NonePlayer(p1_name, config.maxSpawns);
-                P2 = new NonePlayer(p2_name, config.maxSpawns);
-                P2.set_player_dir(true);
+                auto_mode();
             }
-            default -> throw new IllegalArgumentException("Invalid mode");
+            default -> {
+                throw new IllegalArgumentException("Invalid mode");
+            }
         }
-        Add_Player_Start_Board();
+        PlayerList.forEach((name, player) -> {
+            Assign_Start_Gird(player);
+        });
     }
 
     public void add_available_minion(minion_kind m) {
-        minion_kinds.add(m);
+        minion_kinds.put(m.getName(), m);
     }
 
     public void remove_available_minion(minion_kind m) {
-        minion_kinds.remove(m);
+        minion_kinds.remove(m.getName());
     }
 
-    private void Add_Player_Start_Board() {
-        Grid fst_grid = board.getGrid(board.max_row(), board.max_col());
-        Grid snd_grid = fst_grid.getGrid(Direction.UP);
-        P1.addGrid(fst_grid);
-        P1.addGrid(snd_grid);
-        P1.addGrid(snd_grid.getGrid(Direction.DOWN_LEFT));
-        P1.addGrid(snd_grid.getGrid(Direction.DOWN_LEFT).getGrid(Direction.DOWN_LEFT));
-        P1.addGrid(fst_grid.getGrid(Direction.DOWN_LEFT));
-
-        fst_grid = board.getGrid(1, 1);
-        snd_grid = fst_grid.getGrid(Direction.DOWN);
-        P2.addGrid(fst_grid);
-        P2.addGrid(snd_grid);
-        P2.addGrid(snd_grid.getGrid(Direction.UP_RIGHT));
-        P2.addGrid(snd_grid.getGrid(Direction.UP_RIGHT).getGrid(Direction.UP_RIGHT));
-        P2.addGrid(fst_grid.getGrid(Direction.UP_RIGHT));
+    private void Assign_Start_Gird(Strategist p) {
+        Grid fst_grid;
+        Grid snd_grid;
+        if (p.get_player_dir()) {
+            fst_grid = board.getGrid(1, 1);
+            snd_grid = fst_grid.getGrid(Direction.DOWN);
+            p.addGrid(fst_grid);
+            p.addGrid(snd_grid);
+            p.addGrid(snd_grid.getGrid(Direction.UP_RIGHT));
+            p.addGrid(snd_grid.getGrid(Direction.UP_RIGHT).getGrid(Direction.UP_RIGHT));
+            p.addGrid(fst_grid.getGrid(Direction.UP_RIGHT));
+        }else {
+            fst_grid = board.getGrid(board.max_row(), board.max_col());
+            snd_grid = fst_grid.getGrid(Direction.UP);
+            p.addGrid(fst_grid);
+            p.addGrid(snd_grid);
+            p.addGrid(snd_grid.getGrid(Direction.DOWN_LEFT));
+            p.addGrid(snd_grid.getGrid(Direction.DOWN_LEFT).getGrid(Direction.DOWN_LEFT));
+            p.addGrid(fst_grid.getGrid(Direction.DOWN_LEFT));
+        }
     }
+
 
     private void turn_setUp(turn t, Strategist p) {
         if (t.getCurrent_turn() != 1) {
@@ -92,7 +150,7 @@ public class Stage {
         IO.println("Chose Action:\n 1.Buy Grid\n 2.Skip\n Action: ");
         int choice = user_input.nextInt();
         if (choice == 1) {
-            choose_grid(p);
+            choose_grid(p, t);
         }
         boolean pass = false;
         do {
@@ -111,42 +169,81 @@ public class Stage {
     }
 
     private Strategist endgame_cal() {
-        if (current_turn >= max_turn) {
-            long p1_minion_hp = 0;
-            long p2_minion_hp = 0;
-            for (minion m : P1.getMinions()) p1_minion_hp += m.getHp();
-            for (minion m : P2.getMinions()) p2_minion_hp += m.getHp();
-            if (p1_minion_hp == p2_minion_hp) {
-                if (P1.getBudget() == P2.getBudget()) return null;
-                if (P1.getBudget() > P2.getBudget()) return P1;
-                else return P2;
-            }
-            if (p1_minion_hp > p2_minion_hp) return P1;
-            else return P2;
+        List<Strategist> list = new ArrayList<>(PlayerList.values());
+        Strategist winner = null;
+        List<Strategist> alive = new ArrayList<>();
+        for (Strategist s : list) {
+            if (!s.getMinions().isEmpty()) alive.add(s);
         }
-        boolean p1_lose = P1.getMinions().isEmpty() && P1.isMaxMinion();
-        boolean p2_lose = P2.getMinions().isEmpty() && P2.isMaxMinion();
-        if (p1_lose && p2_lose)  return null;
-        if (p1_lose) return P2;
-        if (p2_lose) return P1;
 
-        return null;
+        if (alive.size() == 1) {
+            return alive.getFirst();
+        }
+
+        if (current_turn >= config.maxTurns || alive.isEmpty()) {
+            winner = calc_by_point(list);
+        }
+        return winner;
     }
 
-    public boolean run_turn() throws Exception {
+    private Strategist calc_by_point(List<Strategist> list) {
+        long max_point = -1;
+        Strategist winner = null;
+        boolean draw = false;
+        for (Strategist s: list) {
+            long total_hp = 0;
+            for (minion m: s.getMinions()) {
+                total_hp += m.getHp();
+            }
+            if (total_hp > max_point) {
+                max_point = total_hp;
+                winner = s;
+                draw = false;
+            }else if (total_hp == max_point) {
+                if (winner != null) {
+                    if (winner.getBudget() < s.getBudget()) {
+                        winner = s;
+                        draw = false;
+                    }
+                    else if (winner.getBudget() == s.getBudget()) draw = true;
+                }
+            }
+        }
+        if (draw) {
+            return null;
+        }
+        return winner;
+    }
+
+    public boolean run_turn() {
         turn t = new turn(current_turn, config, board);
-        turn_setUp(t, P1);
-        turn_setUp(t, P2);
+        PlayerList.forEach((name, player) -> {
+            IO.println(player.getName() + "'s turn");
+            turn_setUp(t,player);
+            try {
+                if (player instanceof NonePlayer) {
+                    ((NonePlayer) player).auto_action(t, this);
+                }else {
+                    player_action(t, player);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
 
-        player_action(t,P1);
-        player_action(t,P2);
+        PlayerList.forEach((name, player) -> {
+            IO.println("Player " + player.getName() + " minion action.");
+                t.minion_action(player);
+            try {
+                Thread.sleep(750);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
-        t.minion_action(P1);
-        t.minion_action(P2);
-
-        t.clear_minion(P1);
-        t.clear_minion(P2);
-
+        PlayerList.forEach((name, player) -> {
+            t.clear_minion(player);
+        });
         Strategist winner = endgame_cal();
         if (winner != null) {
             IO.println("Winner is " + winner.getName());
@@ -175,7 +272,7 @@ public class Stage {
         return buyable_grid;
     }
 
-    public void choose_grid(Strategist p) {
+    private void choose_grid(Strategist p, turn t) {
         List<Grid> buyable_grid = getBuyableGrids(p);
         boolean buyGrid = false;
 
@@ -190,7 +287,7 @@ public class Stage {
             try {
                 Grid target = board.getGrid(row, col);
                 if (buyable_grid.contains(target)) {
-                    p.addGrid(target);
+                    t.buy_grid(target,p, config.HexCost);
                     buyGrid = true;
                 }else {
                     IO.println("This grid cannot be buy!");
@@ -201,7 +298,7 @@ public class Stage {
         }while(!buyGrid);
     }
 
-    public void spawn_minion(Strategist p, turn t) throws Exception {
+    private void spawn_minion(Strategist p, turn t) throws Exception {
         List<Grid> available_grid = p.getGrids();
         int row,col;
         boolean isMyGrid, buyMinion = false;
@@ -219,13 +316,12 @@ public class Stage {
             isMyGrid = available_grid.stream().anyMatch(g -> g.getRow() == finalRow && g.getCol() == finalCol);
             if (!isMyGrid) IO.println("This is not your grid!");
         } while (!isMyGrid);
-        for (minion_kind k : minion_kinds) {
-            IO.println(k.getName() + " price: " + k.getSpawnCost());
-        }
         do {
+            minion_kinds.forEach((key, val) -> {
+                IO.println("[ " + key + " ]");
+            });
             IO.println("Choose minion kind (type 'exit' to exit): ");
             String kind =  user_input.next();
-            kindFound = false;
             if (kind.equalsIgnoreCase("exit")) {
                 if (current_turn == 1) {
                     IO.println("Please spawn free minion.");
@@ -233,31 +329,25 @@ public class Stage {
                 }
                 else return;
             }
-            for (minion_kind k : minion_kinds) {
-                if (k.getName().equals(kind)) {
-                    minion m = p.get_player_dir() ?
-                            t.buy_minion_inverse(p, k, row, col):
-                            t.buy_minion(p, k, row, col);
-                    if (m != null) {
-                        buyMinion = true;
-                    }else IO.println("Not Enough Money!");
-                    kindFound = true;
+            if (minion_kinds.containsKey(kind)) {
+                minion_kind k = minion_kinds.get(kind);
+                minion m = p.get_player_dir() ?
+                        t.buy_minion_inverse(p, k, row, col):
+                        t.buy_minion(p, k, row, col);
+                if (m != null) {
                     break;
-                }
-            }
-            if (!kindFound) IO.println("Invalid minion kind! Maybe you miss spell kind name.");
-        }while(!buyMinion);
+                }else IO.println("Not Enough Money!");
+            } else IO.println("Invalid minion kind! Maybe you miss spell kind name.");
+        }while(true);
     }
 
     // ฟังก์ชันสำหรับสรุป Status ทั้งหมดของเกม
     public void print_game_status() {
         IO.println("\n========== [ GAME STATUS: TURN " + (current_turn - 1) + " END ] ==========");
 
-        // ปรินต์ Status ของ P1
-        print_player_status("Player 1", P1);
-
-        // ปรินต์ Status ของ P2
-        print_player_status("Player 2", P2);
+        PlayerList.forEach((name, player) -> {
+            print_player_status(player.getName(),player);
+        });
 
         IO.println("==================================================");
     }

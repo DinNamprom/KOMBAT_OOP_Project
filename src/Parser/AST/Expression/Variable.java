@@ -6,12 +6,13 @@ public record Variable(String name) implements Expr {
     @Override
     public Long eval(minion minion) {
         if (minion.getVariable().containsKey(name)) {
-            return minion.getVariable().getOrDefault(name, 0L);
+            return minion.getVariable().get(name);
         }
         if (name.equals("Budget")) {
             return minion.getOwner().getBudget();
         }
-        throw new RuntimeException("ERROR: undefined variable: " + name);
+        IO.println("-> [Warning] Variable " + name + " hasn't assign yet!");
+        return 0L;
     }
 
     @Override

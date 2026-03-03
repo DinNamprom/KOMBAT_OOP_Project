@@ -14,7 +14,7 @@ public record moveCommand(Direction dir) implements Command {
         if (cur_budget < cost) return false;
         if (minion.move(dir)) {
             minion.getOwner().decreaseBudget(cost);
-            IO.println("-> [ACTION] Move: " + dir.toString());
+            System.out.println("-> [ACTION] Move: " + dir.toString());
             return true;
         }
         return false;

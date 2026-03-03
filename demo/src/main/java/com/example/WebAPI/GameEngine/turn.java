@@ -78,7 +78,7 @@ public class turn {
                     m.action();
                     m.check_variable(p.getGolbVariables());
                 }catch (Exception e) {
-                    IO.println("Error: " + e.getMessage());
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
         }

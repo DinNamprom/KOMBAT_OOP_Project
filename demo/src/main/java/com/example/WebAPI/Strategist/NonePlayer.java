@@ -115,7 +115,7 @@ public class NonePlayer extends Player{
         if (getBudget() > hex_cost) {
             t.buy_grid(buyableGrid.getFirst(),this, hex_cost);
         }
-        stage.getMinion_kinds().forEach((_, kind) -> {
+        stage.getMinion_kinds().forEach((s, kind) -> {
             if (getBudget() > kind.getSpawnCost() && !buy.get()) {
                 for (Grid g: getGrids()) {
                     if (!g.haveMinion()) {
@@ -125,7 +125,7 @@ public class NonePlayer extends Player{
                                 buy.set(true);
                                 break;
                             } catch (Exception e) {
-                                IO.println(e.getMessage());
+                                System.out.println(e.getMessage());
                             }
                         }else {
                             try {
@@ -133,7 +133,7 @@ public class NonePlayer extends Player{
                                 buy.set(true);
                                 break;
                             } catch (Exception e) {
-                                IO.println(e.getMessage());
+                                System.out.println(e.getMessage());
                             }
                         }
                     }

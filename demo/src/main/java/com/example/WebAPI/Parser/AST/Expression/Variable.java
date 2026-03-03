@@ -11,7 +11,7 @@ public record Variable(String name) implements Expr {
         if (name.equals("Budget")) {
             return minion.getOwner().getBudget();
         }
-        IO.println("-> [Warning] Variable " + name + " hasn't assign yet!");
+        System.out.println("-> [Warning] Variable " + name + " hasn't assign yet!");
         return 0L;
     }
 

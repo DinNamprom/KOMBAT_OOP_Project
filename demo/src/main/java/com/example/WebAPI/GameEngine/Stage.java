@@ -39,10 +39,10 @@ public class Stage {
 
     private void duel_mode() {
         do {
-            IO.println("Enter Player's name:");
+            System.out.println("Enter Player's name:");
             String name = user_input.nextLine();
             if (PlayerList.containsKey(name)) {
-                IO.println("Player already exists!");
+                System.out.println("Player already exists!");
                 continue;
             }
             Strategist temp =  new Player(name,config.maxSpawns);
@@ -61,10 +61,10 @@ public class Stage {
                 name = "Bot " + (PlayerList.size());
                 temp = new NonePlayer(name,config.maxSpawns);
             }else {
-                IO.println("Enter Player's name:");
+                System.out.println("Enter Player's name:");
                 name = user_input.nextLine();
                 if (PlayerList.containsKey(name)) {
-                    IO.println("Player already exists!");
+                    System.out.println("Player already exists!");
                     continue;
                 }
                 temp = new Player(name,config.maxSpawns);
@@ -147,21 +147,21 @@ public class Stage {
     }
 
     private void player_action(turn t, Strategist p) throws Exception {
-        IO.println("Chose Action:\n 1.Buy Grid\n 2.Skip\n Action: ");
+        System.out.println("Chose Action:\n 1.Buy Grid\n 2.Skip\n Action: ");
         int choice = user_input.nextInt();
         if (choice == 1) {
             choose_grid(p, t);
         }
         boolean pass = false;
         do {
-            IO.println("Chose Action:\n 1.Buy Minion\n 2.Skip\n Action: ");
+            System.out.println("Chose Action:\n 1.Buy Minion\n 2.Skip\n Action: ");
             int choice2 = user_input.nextInt();
             if (choice2 == 1) {
                 spawn_minion(p,t);
                 pass = true;
             }else {
                 if (current_turn == 1) {
-                    IO.println("Please spawn free minion.");
+                    System.out.println("Please spawn free minion.");
                 }else pass = true;
             }
         }while (!pass);
@@ -218,7 +218,7 @@ public class Stage {
     public boolean run_turn() {
         turn t = new turn(current_turn, config, board);
         PlayerList.forEach((name, player) -> {
-            IO.println(player.getName() + "'s turn");
+            System.out.println(player.getName() + "'s turn");
             turn_setUp(t,player);
             try {
                 if (player instanceof NonePlayer) {
@@ -232,7 +232,7 @@ public class Stage {
         });
 
         PlayerList.forEach((name, player) -> {
-            IO.println("Player " + player.getName() + " minion action.");
+            System.out.println("Player " + player.getName() + " minion action.");
                 t.minion_action(player);
             try {
                 Thread.sleep(750);
@@ -246,10 +246,10 @@ public class Stage {
         });
         Strategist winner = endgame_cal();
         if (winner != null) {
-            IO.println("Winner is " + winner.getName());
+            System.out.println("Winner is " + winner.getName());
             return true;
         }else if (current_turn >= max_turn) {
-            IO.println("Draw");
+            System.out.println("Draw");
             return true;
         }
         current_turn++;
@@ -277,11 +277,11 @@ public class Stage {
         boolean buyGrid = false;
 
         for (Grid g : buyable_grid) {
-            IO.print("[" + g.getRow() + "," + g.getCol() + "]:");
+            System.out.print("[" + g.getRow() + "," + g.getCol() + "]:");
         }
-        IO.println();
+        System.out.println();
         do {
-            IO.println("Choose Grid:");
+            System.out.println("Choose Grid:");
             int row = user_input.nextInt();
             int col = user_input.nextInt();
             try {
@@ -290,10 +290,10 @@ public class Stage {
                     t.buy_grid(target,p, config.HexCost);
                     buyGrid = true;
                 }else {
-                    IO.println("This grid cannot be buy!");
+                    System.out.println("This grid cannot be buy!");
                 }
             } catch (Exception e) {
-                IO.println("Invalid Grid!");
+                System.out.println("Invalid Grid!");
             }
         }while(!buyGrid);
     }
@@ -304,27 +304,27 @@ public class Stage {
         boolean isMyGrid, buyMinion = false;
         boolean kindFound;
         for (Grid g : available_grid) {
-            IO.print("[" + g.getRow() + "," + g.getCol() + "]:");
+            System.out.print("[" + g.getRow() + "," + g.getCol() + "]:");
         }
-        IO.print("\n");
+        System.out.print("\n");
         do {
-            IO.println("Choose where you want to spawn(row col): ");
+            System.out.println("Choose where you want to spawn(row col): ");
             row = user_input.nextInt();
             col = user_input.nextInt();
             int finalRow = row;
             int finalCol = col;
             isMyGrid = available_grid.stream().anyMatch(g -> g.getRow() == finalRow && g.getCol() == finalCol);
-            if (!isMyGrid) IO.println("This is not your grid!");
+            if (!isMyGrid) System.out.println("This is not your grid!");
         } while (!isMyGrid);
         do {
             minion_kinds.forEach((key, val) -> {
-                IO.println("[ " + key + " ]");
+                System.out.println("[ " + key + " ]");
             });
-            IO.println("Choose minion kind (type 'exit' to exit): ");
+            System.out.println("Choose minion kind (type 'exit' to exit): ");
             String kind =  user_input.next();
             if (kind.equalsIgnoreCase("exit")) {
                 if (current_turn == 1) {
-                    IO.println("Please spawn free minion.");
+                    System.out.println("Please spawn free minion.");
                     continue;
                 }
                 else return;
@@ -336,32 +336,32 @@ public class Stage {
                         t.buy_minion(p, k, row, col);
                 if (m != null) {
                     break;
-                }else IO.println("Not Enough Money!");
-            } else IO.println("Invalid minion kind! Maybe you miss spell kind name.");
+                }else System.out.println("Not Enough Money!");
+            } else System.out.println("Invalid minion kind! Maybe you miss spell kind name.");
         }while(true);
     }
 
     // ฟังก์ชันสำหรับสรุป Status ทั้งหมดของเกม
     public void print_game_status() {
-        IO.println("\n========== [ GAME STATUS: TURN " + (current_turn - 1) + " END ] ==========");
+        System.out.println("\n========== [ GAME STATUS: TURN " + (current_turn - 1) + " END ] ==========");
 
         PlayerList.forEach((name, player) -> {
             print_player_status(player.getName(),player);
         });
 
-        IO.println("==================================================");
+        System.out.println("==================================================");
     }
 
     private void print_player_status(String playerName, Strategist p) {
-        IO.println("--- " + playerName + " ---");
-        IO.println("Budget: " + p.getBudget());
-        IO.println("Spawns Left: " + (config.maxSpawns - p.getMinion_Create()));
+        System.out.println("--- " + playerName + " ---");
+        System.out.println("Budget: " + p.getBudget());
+        System.out.println("Spawns Left: " + (config.maxSpawns - p.getMinion_Create()));
 
         List<minion> minions = p.getMinions();
         if (minions.isEmpty()) {
-            IO.println("Minions: None (All dead or not spawned)");
+            System.out.println("Minions: None (All dead or not spawned)");
         } else {
-            IO.println("Minions Alive: " + minions.size());
+            System.out.println("Minions Alive: " + minions.size());
             for (int i = 0; i < minions.size(); i++) {
                 minion m = minions.get(i);
                 String kindName = m.getKind().getName();
@@ -369,15 +369,15 @@ public class Stage {
                 int row = m.getRow();
                 int col = m.getCol();
                 // (ถ้าคุณมี getter สำหรับดูว่าโดน inverse ไหม ก็ใส่เพิ่มได้ครับ เช่น m.isInverse())
-                IO.println("  [" + (i+1) + "] " + kindName + " | HP: " + hp + " | Pos: [" + row + ", " + col + "]");
+                System.out.println("  [" + (i+1) + "] " + kindName + " | HP: " + hp + " | Pos: [" + row + ", " + col + "]");
             }
         }
 
         // (Optional) ดูว่าผู้เล่นครอบครอง Grid ไหนอยู่บ้าง
-        IO.print("Owned Grids: ");
+        System.out.print("Owned Grids: ");
         for (Grid g : p.getGrids()) {
-            IO.print("[" + g.getRow() + "," + g.getCol() + "] ");
+            System.out.print("[" + g.getRow() + "," + g.getCol() + "] ");
         }
-        IO.println("\n");
+        System.out.println("\n");
     }
 }

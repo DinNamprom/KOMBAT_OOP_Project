@@ -13,15 +13,15 @@ public record InfoExpr(InfoType info, Direction dir) implements Expr {
     public Long eval(minion minion) {
         switch (info) {
             case ALLY -> {
-                IO.println("-> [SENSOR] Checking Ally...");
+                System.out.println("-> [SENSOR] Checking Ally...");
                 return  minion.Check(InfoType.ALLY);
             } //add Ally compute later
             case OPPONENT -> {
-                IO.println("-> [SENSOR] Checking Opponent...");
+                System.out.println("-> [SENSOR] Checking Opponent...");
                 return minion.Check(InfoType.OPPONENT);
             } // same as ally
             case NEARBY -> {
-                IO.println("-> [SENSOR] Checking Nearby Direction " + dir.toString() + "...");
+                System.out.println("-> [SENSOR] Checking Nearby Direction " + dir.toString() + "...");
                 return minion.CheckDir(InfoType.NEARBY, dir);
             }// add Nearby direction later
         }

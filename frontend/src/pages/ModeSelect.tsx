@@ -1,20 +1,19 @@
 import { useNavigate } from 'react-router-dom';
 import bgImage from '../assets/bg.svg';
 
-// สมมติว่าไฟล์ SVG ของ Banner เก็บไว้ในโฟลเดอร์ assets (เปลี่ยน path ตามจริงได้เลยครับ)
 import solitaireBanner from '../assets/solitaire.svg';
 import duelBanner from '../assets/duel.svg';
 import autoBanner from '../assets/auto.svg';
-import backBtnImage from "../assets/back-button.svg";
+import BackButton from "../components/BackButton.tsx";
 
 const ModeSelect = () => {
     const navigate = useNavigate();
 
     // ข้อมูลจำลองสำหรับวนลูปสร้าง Banner เพื่อให้โค้ดคลีนขึ้น
     const modes = [
-        { id: 'solitaire', name: 'Solitaire', img: solitaireBanner, path: '/play/solitaire' },
-        { id: 'duel', name: 'Duel', img: duelBanner, path: '/play/duel' },
-        { id: 'auto', name: 'Auto', img: autoBanner, path: '/play/auto' },
+        { id: 'solitaire', name: 'Solitaire', img: solitaireBanner, path: '/setup' },
+        { id: 'duel', name: 'Duel', img: duelBanner, path: '/setup' },
+        { id: 'auto', name: 'Auto', img: autoBanner, path: '/setup' },
     ];
 
     return (
@@ -28,19 +27,10 @@ const ModeSelect = () => {
             }}
         >
             {/* ปุ่ม Back มุมซ้ายบน */}
-            <button
-                onClick={() => navigate('/')}
-                className="absolute top-8 left-8 bg-transparent border-none p-0 cursor-pointer transition-transform hover:scale-105 active:scale-95"
-            >
-                <img
-                    src={backBtnImage}
-                    alt="Back"
-                    className="w-30 md:w-40 h-auto"
-                />
-            </button>
+            <BackButton onClick={() => navigate("/")}/>
 
             {/* คอนเทนเนอร์ใส่ Banner ทั้ง 3 อัน */}
-            <div className="flex flex-row gap-6 md:gap-12 items-center justify-center">
+            <div className="flex flex-row gap-6 md:gap-12 items-center justify-center translate-y-8">
                 {modes.map((mode) => (
                     <div
                         key={mode.id}

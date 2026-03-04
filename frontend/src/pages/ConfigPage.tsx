@@ -4,7 +4,6 @@ import Title from '../components/Title';
 import CyberButton from '../components/CyberButton'; // Import ปุ่มของคุณเข้ามา
 import bgImage from '../assets/bg.svg';
 import frameImage from '../assets/config-frame.svg';
-// 👇 Import SVG กรอบดำของคุณเข้ามาตรงนี้ (เปลี่ยนชื่อไฟล์ให้ตรงนะครับ)
 import innerFrameImage from '../assets/inner-black-frame.svg';
 import BackButton from "../components/BackButton.tsx";
 
@@ -53,8 +52,7 @@ max_spawns=47`
                     {/* กล่องสำหรับใส่เนื้อหา 'ข้างใน' กรอบนอก */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-8 md:p-12 gap-6 -translate-y-4">
 
-                        {/* 🌟 โซนกล่องดำสำหรับพิมพ์ Text */}
-                        {/* กำหนดขนาดกว้าง 80% และสูง 60% ของกรอบนอก (ปรับขนาดได้ตามความเหมาะสม) */}
+
                         <div className="relative w-[100%] h-[80%] flex justify-center items-center">
                             {/* รูปกรอบดำ */}
                             <img

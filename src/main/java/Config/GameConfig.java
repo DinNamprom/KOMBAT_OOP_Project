@@ -2,6 +2,7 @@ package Config;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Properties;
 
 public class GameConfig {
@@ -50,6 +51,32 @@ public class GameConfig {
             }
 
         }
+    public void loadFromString(String configData) throws IOException {
+        Properties props = new Properties();
+
+        // เปลี่ยนมาใช้ StringReader เพื่ออ่านค่าจาก String ยาวๆ โดยตรง
+        try (StringReader reader = new StringReader(configData)) {
+            props.load(reader);
+        }
+
+        try {
+            this.initSpawnCost = Long.parseLong(props.getProperty("spawn_cost"));
+            this.HexCost = Long.parseLong(props.getProperty("hex_purchase_cost"));
+            this.initBudget = Long.parseLong(props.getProperty("init_budget"));
+            this.initHp = Long.parseLong(props.getProperty("init_hp"));
+            this.turnBudget = Long.parseLong(props.getProperty("turn_budget"));
+            this.maxBudget = Long.parseLong(props.getProperty("max_budget"));
+            this.TurnInterest = Long.parseLong(props.getProperty("interest_pct"));
+            this.maxTurns = Long.parseLong(props.getProperty("max_turns"));
+            this.maxSpawns = Long.parseLong(props.getProperty("max_spawns"));
+        } catch (NumberFormatException e) {
+            System.err.println("Error: Config Value Must Be Long ");
+            throw e;
+        } catch (NullPointerException e) {
+            System.err.println("Error: Missing Config Value");
+            throw e;
+        }
+    }
 
         @Override
         public String toString() {

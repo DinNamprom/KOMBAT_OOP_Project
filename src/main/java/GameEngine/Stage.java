@@ -16,61 +16,53 @@ public class Stage {
     private final long max_turn;
     private int current_turn = 1;
     @Getter
+
     private final GameConfig config;
     private final int max_player = 2;
-    private final Map<String, strategist> PlayerList = new HashMap<String, strategist>();
+    @Getter
+    private final Map<String, strategist> PlayerList = new LinkedHashMap<>();
     private final Mode mode;
     @Getter
+
     private final Map<String, minion_kind> minion_kinds = new HashMap<>();
     private final Board board;
-    private final Scanner user_input = new Scanner(System.in);
 
-    public Stage(String config_path,Mode mode, Board board) throws IOException {
+
+    public Stage(String configData,Mode mode, Board board) throws IOException {
         this.config = new GameConfig();
-        config.load(config_path);
+        config.loadFromString(configData);
         this.max_turn = config.maxTurns;
         this.mode = mode;
         this.board = board;
     }
 
-    private void duel_mode() {
-        do {
-            System.out.println("Enter Player's name:");
-            String name = user_input.nextLine();
-            if (PlayerList.containsKey(name)) {
-                System.out.println("Player already exists!");
-                continue;
-            }
-            strategist temp =  new Player(name,config.maxSpawns);
-            if (PlayerList.size()%2 == 1) {
-                temp.set_player_dir(true);
-            }
-            PlayerList.put(name,temp);
-        }while (PlayerList.size() < max_player);
+    public int getCurrentTurn() { return current_turn; }
+
+    public boolean addPlayer(String name) {
+        if (PlayerList.containsKey(name) || PlayerList.size() >= max_player) {
+            return false; // ชื่อซ้ำ หรือห้องเต็ม
+        }
+
+        strategist newPlayer;
+        if (this.mode == Mode.AUTO || (this.mode == Mode.SOLITAIRE && PlayerList.size() == 1)) {
+            newPlayer = new NonePlayer("Bot " + (PlayerList.size() + 1), config.maxSpawns);
+        } else {
+            newPlayer = new Player(name, config.maxSpawns);
+        }
+
+        // กำหนดฝั่ง (บนซ้าย หรือ ล่างขวา)
+        if (PlayerList.size() % 2 == 1) {
+            newPlayer.set_player_dir(true);
+        }
+
+        PlayerList.put(newPlayer.getName(), newPlayer);
+
+        if (PlayerList.size() == max_player) {
+            PlayerList.values().forEach(this::Assign_Start_Gird);
+        }
+        return true;
     }
 
-    private void solitaire_mode() {
-        do {
-            strategist temp;
-            String name;
-            if (!PlayerList.isEmpty()) {
-                name = "Bot " + (PlayerList.size());
-                temp = new NonePlayer(name,config.maxSpawns);
-            }else {
-                System.out.println("Enter Player's name:");
-                name = user_input.nextLine();
-                if (PlayerList.containsKey(name)) {
-                    System.out.println("Player already exists!");
-                    continue;
-                }
-                temp = new Player(name,config.maxSpawns);
-            }
-            if (PlayerList.size()%2 == 1) {
-                temp.set_player_dir(true);
-            }
-            PlayerList.put(name,temp);
-        }while (PlayerList.size() < max_player);
-    }
     private void auto_mode() {
         do {
             String name = "Bot " + (PlayerList.size()+1);
@@ -82,25 +74,6 @@ public class Stage {
         }while (PlayerList.size() < max_player);
     }
 
-    public void create_player() {
-        switch(this.mode) {
-            case DUEL -> {
-                duel_mode();
-            }
-            case SOLITAIRE -> {
-                solitaire_mode();
-            }
-            case AUTO -> {
-                auto_mode();
-            }
-            default -> {
-                throw new IllegalArgumentException("Invalid mode");
-            }
-        }
-        PlayerList.forEach((name, player) -> {
-            Assign_Start_Gird(player);
-        });
-    }
 
     public void add_available_minion(minion_kind m) {
         minion_kinds.put(m.getName(), m);
@@ -132,36 +105,19 @@ public class Stage {
     }
 
 
-    private void turn_setUp(turn t, strategist p) {
-        if (t.getCurrent_turn() != 1) {
-            t.turnSetup(p);
-        }else {
-            t.setup(p);
-            p.setBudget(config.initBudget);
-        }
-    }
-
-    private void player_action(turn t, strategist p) throws Exception {
-        System.out.println("Chose Action:\n 1.Buy Grid\n 2.Skip\n Action: ");
-        int choice = user_input.nextInt();
-        if (choice == 1) {
-            choose_grid(p, t);
-        }
-        boolean pass = false;
-        do {
-            System.out.println("Chose Action:\n 1.Buy Minion\n 2.Skip\n Action: ");
-            int choice2 = user_input.nextInt();
-            if (choice2 == 1) {
-                spawn_minion(p,t);
-                pass = true;
-            }else {
-                if (current_turn == 1) {
-                    System.out.println("Please spawn free minion.");
-                }else pass = true;
+    public void setupTurn() {
+        turn t = new turn(current_turn, config, board);
+        PlayerList.forEach((name, player) -> {
+            if (current_turn == 1) {
+                t.setup(player);
+                player.setBudget(config.initBudget);
+            } else {
+                t.turnSetup(player);
             }
-        }while (!pass);
-
+        });
     }
+
+
 
     private strategist endgame_cal() {
         List<strategist> list = new ArrayList<>(PlayerList.values());
@@ -210,50 +166,12 @@ public class Stage {
         return winner;
     }
 
-    public boolean run_turn() {
-        turn t = new turn(current_turn, config, board);
-        PlayerList.forEach((name, player) -> {
-            System.out.println(player.getName() + "'s turn");
-            turn_setUp(t,player);
-            try {
-                if (player instanceof NonePlayer) {
-                    ((NonePlayer) player).auto_action(t, this);
-                }else {
-                    player_action(t, player);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+    public List<Grid> getBuyableGrids(String playerName) {
+        strategist p = PlayerList.get(playerName);
+        if (p == null) return new ArrayList<>();
 
-        PlayerList.forEach((name, player) -> {
-            System.out.println("Player " + player.getName() + " minion action.");
-                t.minion_action(player);
-            try {
-                Thread.sleep(750);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        PlayerList.forEach((name, player) -> {
-            t.clear_minion(player);
-        });
-        strategist winner = endgame_cal();
-        if (winner != null) {
-            System.out.println("Winner is " + winner.getName());
-            return true;
-        }else if (current_turn >= max_turn) {
-            System.out.println("Draw");
-            return true;
-        }
-        current_turn++;
-        return false;
-    }
-
-    public List<Grid> getBuyableGrids(strategist p) {
-        List<Grid> buyable_grid = new ArrayList<Grid>();
-        for(Grid g : p.getGrids()) {
+        List<Grid> buyable_grid = new ArrayList<>();
+        for (Grid g : p.getGrids()) {
             Direction[] dirs = {
                     Direction.UP, Direction.DOWN,
                     Direction.UP_LEFT, Direction.UP_RIGHT,
@@ -261,118 +179,163 @@ public class Stage {
             };
             for (Direction dir : dirs) {
                 Grid neighbour = g.getGrid(dir);
-                if (neighbour != null && !neighbour.isSpawnable() && !buyable_grid.contains(neighbour)) buyable_grid.add(neighbour);
+                if (neighbour != null && !neighbour.isSpawnable() && !buyable_grid.contains(neighbour)) {
+                    buyable_grid.add(neighbour);
+                }
             }
         }
         return buyable_grid;
     }
 
-    private void choose_grid(strategist p, turn t) {
-        List<Grid> buyable_grid = getBuyableGrids(p);
-        boolean buyGrid = false;
+    public boolean buyGridAPI(String playerName, int row, int col) {
+        strategist p = PlayerList.get(playerName);
+        if (p == null) return false;
 
-        for (Grid g : buyable_grid) {
-            System.out.print("[" + g.getRow() + "," + g.getCol() + "]:");
+        Grid target;
+        try {
+            target = board.getGrid(row, col);
+        } catch (Exception e) {
+            return false;
         }
-        System.out.println();
-        do {
-            System.out.println("Choose Grid:");
-            int row = user_input.nextInt();
-            int col = user_input.nextInt();
-            try {
-                Grid target = board.getGrid(row, col);
-                if (buyable_grid.contains(target)) {
-                    t.buy_grid(target,p, config.HexCost);
-                    buyGrid = true;
-                }else {
-                    System.out.println("This grid cannot be buy!");
-                }
-            } catch (Exception e) {
-                System.out.println("Invalid Grid!");
-            }
-        }while(!buyGrid);
+
+        List<Grid> buyable_grid = getBuyableGrids(playerName);
+        if (buyable_grid.contains(target)) {
+            turn t = new turn(current_turn, config, board);
+            t.buy_grid(target, p, config.HexCost);
+            return true;
+        }
+        return false;
     }
 
-    private void spawn_minion(strategist p, turn t) throws Exception {
-        List<Grid> available_grid = p.getGrids();
-        int row,col;
-        boolean isMyGrid, buyMinion = false;
-        boolean kindFound;
-        for (Grid g : available_grid) {
-            System.out.print("[" + g.getRow() + "," + g.getCol() + "]:");
+
+    public boolean spawnMinionAPI(String playerName, String kindName, int row, int col) {
+        strategist p = PlayerList.get(playerName);
+        if (p == null) return false;
+
+        boolean isMyGrid = p.getGrids().stream().anyMatch(g -> g.getRow() == row && g.getCol() == col);
+        if (!isMyGrid) return false;
+
+        if (!minion_kinds.containsKey(kindName)) return false;
+
+        minion_kind k = minion_kinds.get(kindName);
+        turn t = new turn(current_turn, config, board);
+
+        try {
+            minion m = p.get_player_dir() ?
+                    t.buy_minion_inverse(p, k, row, col) :
+                    t.buy_minion(p, k, row, col);
+            return m != null;
+        } catch (Exception e) {
+            return false;
         }
-        System.out.print("\n");
-        do {
-            System.out.println("Choose where you want to spawn(row col): ");
-            row = user_input.nextInt();
-            col = user_input.nextInt();
-            int finalRow = row;
-            int finalCol = col;
-            isMyGrid = available_grid.stream().anyMatch(g -> g.getRow() == finalRow && g.getCol() == finalCol);
-            if (!isMyGrid) System.out.println("This is not your grid!");
-        } while (!isMyGrid);
-        do {
-            minion_kinds.forEach((key, val) -> {
-                System.out.println("[ " + key + " ]");
-            });
-            System.out.println("Choose minion kind (type 'exit' to exit): ");
-            String kind =  user_input.next();
-            if (kind.equalsIgnoreCase("exit")) {
-                if (current_turn == 1) {
-                    System.out.println("Please spawn free minion.");
-                    continue;
-                }
-                else return;
-            }
-            if (minion_kinds.containsKey(kind)) {
-                minion_kind k = minion_kinds.get(kind);
-                minion m = p.get_player_dir() ?
-                        t.buy_minion_inverse(p, k, row, col):
-                        t.buy_minion(p, k, row, col);
-                if (m != null) {
-                    break;
-                }else System.out.println("Not Enough Money!");
-            } else System.out.println("Invalid minion kind! Maybe you miss spell kind name.");
-        }while(true);
     }
 
-    // ฟังก์ชันสำหรับสรุป Status ทั้งหมดของเกม
-    public void print_game_status() {
-        System.out.println("\n========== [ GAME STATUS: TURN " + (current_turn - 1) + " END ] ==========");
+    public boolean executeTurnEnding() {
+        turn t = new turn(current_turn, config, board);
 
+        // ให้ Bot เล่นอัตโนมัติ (ถ้ามี)
         PlayerList.forEach((name, player) -> {
-            print_player_status(player.getName(),player);
+            if (player instanceof NonePlayer) {
+                try {
+                    ((NonePlayer) player).auto_action(t, this);
+                } catch (Exception e) {
+                    System.out.println("Bot Error: " + e.getMessage());
+                }
+            }
+        });
+        // Minion รันโค้ด Strategy ของตัวเองทีละตัว
+        PlayerList.forEach((name, player) -> {
+            t.minion_action(player);
         });
 
-        System.out.println("==================================================");
+        // เคลียร์ Minion ที่เลือดหมด (ตาย)
+        PlayerList.forEach((name, player) -> {
+            t.clear_minion(player);
+        });
+
+        // เช็คผู้ชนะ
+        strategist winner = endgame_cal();
+        if (winner != null) {
+            System.out.println("Winner is " + winner.getName());
+            return true; // เกมจบ
+        } else if (current_turn >= max_turn) {
+            System.out.println("Draw");
+            return true; // เสมอ
+        }
+
+        current_turn++;
+        setupTurn(); // เริ่มคำนวณเงินสำหรับเทิร์นถัดไป
+        return false; // เกมยังไม่จบ
     }
 
-    private void print_player_status(String playerName, strategist p) {
-        System.out.println("--- " + playerName + " ---");
-        System.out.println("Budget: " + p.getBudget());
-        System.out.println("Spawns Left: " + (config.maxSpawns - p.getMinion_Create()));
+    public boolean start_game_setup() {
+        // 1. ตรวจสอบว่ามีผู้เล่นอย่างน้อย 1 คน หรือครบตามโหมดหรือไม่
+        if (PlayerList.isEmpty()) {
+            return false; // ไม่มีผู้เล่นเลย เริ่มเกมไม่ได้
+        }
 
-        List<minion> minions = p.getMinions();
-        if (minions.isEmpty()) {
-            System.out.println("Minions: None (All dead or not spawned)");
-        } else {
-            System.out.println("Minions Alive: " + minions.size());
-            for (int i = 0; i < minions.size(); i++) {
-                minion m = minions.get(i);
-                String kindName = m.getKind().getName();
-                long hp = m.getHp();
-                int row = m.getRow();
-                int col = m.getCol();
-                // (ถ้าคุณมี getter สำหรับดูว่าโดน inverse ไหม ก็ใส่เพิ่มได้ครับ เช่น m.isInverse())
-                System.out.println("  [" + (i+1) + "] " + kindName + " | HP: " + hp + " | Pos: [" + row + ", " + col + "]");
+        // 2. ถ้าโหมด AUTO หรือ SOLITAIRE ผู้เล่นยังไม่ครบ ให้เติม Bot อัตโนมัติ
+        if (PlayerList.size() < max_player) {
+            if (this.mode == Mode.SOLITAIRE || this.mode == Mode.AUTO) {
+                while (PlayerList.size() < max_player) {
+                    // addPlayer จะไปเรียกการสร้าง NonePlayer (Bot) ให้ถ้าชื่อไม่ซ้ำ
+                    addPlayer("Bot " + (PlayerList.size() + 1));
+                }
+            } else {
+                return false; // โหมด DUEL แต่คนไม่ครบ 2 คน เริ่มเกมไม่ได้
             }
         }
 
-        // (Optional) ดูว่าผู้เล่นครอบครอง Grid ไหนอยู่บ้าง
-        System.out.print("Owned Grids: ");
-        for (Grid g : p.getGrids()) {
-            System.out.print("[" + g.getRow() + "," + g.getCol() + "] ");
-        }
-        System.out.println("\n");
+        // 3. ล้างกระดานและแจกพื้นที่เริ่มต้น (Start Grids) ให้ผู้เล่นทุกคน
+        PlayerList.values().forEach(player -> {
+            player.getGrids().clear(); // เคลียร์เพื่อความชัวร์หากมีการกด Start ซ้ำ
+            Assign_Start_Gird(player);
+        });
+
+        // 4. เซ็ตอัพเทิร์นที่ 1 (แจกเงินตั้งต้น initBudget และเตรียมตัวแปร global)
+        this.current_turn = 1;
+        setupTurn();
+
+        return true;
     }
-}
+
+//    // ฟังก์ชันสำหรับสรุป Status ทั้งหมดของเกม
+//    public void print_game_status() {
+//        System.out.println("\n========== [ GAME STATUS: TURN " + (current_turn - 1) + " END ] ==========");
+//
+//        PlayerList.forEach((name, player) -> {
+//            print_player_status(player.getName(),player);
+//        });
+//
+//        System.out.println("==================================================");
+//    }
+//
+//    private void print_player_status(String playerName, strategist p) {
+//        System.out.println("--- " + playerName + " ---");
+//        System.out.println("Budget: " + p.getBudget());
+//        System.out.println("Spawns Left: " + (config.maxSpawns - p.getMinion_Create()));
+//
+//        List<minion> minions = p.getMinions();
+//        if (minions.isEmpty()) {
+//            System.out.println("Minions: None (All dead or not spawned)");
+//        } else {
+//            System.out.println("Minions Alive: " + minions.size());
+//            for (int i = 0; i < minions.size(); i++) {
+//                minion m = minions.get(i);
+//                String kindName = m.getKind().getName();
+//                long hp = m.getHp();
+//                int row = m.getRow();
+//                int col = m.getCol();
+//                // (ถ้าคุณมี getter สำหรับดูว่าโดน inverse ไหม ก็ใส่เพิ่มได้ครับ เช่น m.isInverse())
+//                System.out.println("  [" + (i+1) + "] " + kindName + " | HP: " + hp + " | Pos: [" + row + ", " + col + "]");
+//            }
+//        }
+//
+//        // (Optional) ดูว่าผู้เล่นครอบครอง Grid ไหนอยู่บ้าง
+//        System.out.print("Owned Grids: ");
+//        for (Grid g : p.getGrids()) {
+//            System.out.print("[" + g.getRow() + "," + g.getCol() + "] ");
+//        }
+//        System.out.println("\n");
+    }
+

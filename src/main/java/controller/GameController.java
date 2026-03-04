@@ -7,11 +7,13 @@ import Minion.minion_kind;
 import dto.CreateMinion;
 
 import dto.CreateModeConfig;
+import dto.GridPosition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import repository.GameService;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,14 +76,19 @@ public class GameController {
     //GAMESTATE
     //ดึงข้อมูลทั้งหมดเพื่อแสดงผล
     @GetMapping("/{gameID}/stat")
-    public Stage GetGameStat(@PathVariable UUID gameID) {return gameService.getGame(gameID);}
+    public Stage GetGameStat(@PathVariable UUID gameID) {return gameService.getGame (gameID);}
 
     //ดึงรายการพิกัด Grid ที่ผู้เล่นคนนั้นสามารถซื้อได้ (อยู่ติดกับพื้นที่เดิม)
     @GetMapping("/{gameID}/{playerName}/buyable-grids")
-    public List<Grid> Getbuyablegrids(@PathVariable UUID gameID, @PathVariable String playerName) {
+    public List<GridPosition> Getbuyablegrids(@PathVariable UUID gameID, @PathVariable String playerName) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return null;
-        return stage.getBuyableGrids(playerName);
+        List<Grid> actualGrids = stage.getBuyableGrids(playerName);
+        List<GridPosition> GridPosition = new ArrayList<>();
+        for (Grid g : actualGrids) {
+            GridPosition.add(g.toPosition());
+        }
+        return GridPosition;
     }
 
 }

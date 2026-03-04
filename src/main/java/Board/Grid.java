@@ -3,6 +3,7 @@ package Board;
 import Minion.minion;
 import Parser.AST.Enum.Direction;
 import Strategist.strategist;
+import dto.GridPosition;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -175,6 +176,10 @@ public class Grid {
     public Grid getPrevCol() {
         if (isEven(col)) return downleft;
         return upleft;
+    }
+    // Method สำหรับแปลง Grid เป็น GridPosition (DTO) เพื่อส่งออก API
+    public GridPosition toPosition() {
+        return new GridPosition(this.row, this.col);
     }
     public boolean haveMinion() {return minion != null;}
     public static boolean isEven(int i) {

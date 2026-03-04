@@ -4,6 +4,7 @@ package controller;
 import Board.Grid;
 import GameEngine.Stage;
 import Minion.minion_kind;
+import Strategist.strategist;
 import dto.CreateMinion;
 
 import dto.CreateModeConfig;
@@ -78,6 +79,7 @@ public class GameController {
     @GetMapping("/{gameID}/stat")
     public Stage GetGameStat(@PathVariable UUID gameID) {return gameService.getGame (gameID);}
 
+
     //ดึงรายการพิกัด Grid ที่ผู้เล่นคนนั้นสามารถซื้อได้ (อยู่ติดกับพื้นที่เดิม)
     @GetMapping("/{gameID}/{playerName}/buyable-grids")
     public List<GridPosition> Getbuyablegrids(@PathVariable UUID gameID, @PathVariable String playerName) {
@@ -91,4 +93,17 @@ public class GameController {
         return GridPosition;
     }
 
+    //ดึงรายการพิกัด Grid ที่ผู้เล่นคนนั้นเป็นเจ้าของ
+    @GetMapping("/{gameID}/{playerName}/spawnable-grids")
+    public List<GridPosition> GetSpawnablegrids(@PathVariable UUID gameID, @PathVariable String playerName) {
+        Stage stage = gameService.getGame(gameID);
+        if (stage == null) return null;
+
+        List<Grid> actualGrids = stage.getSpawnableGrids(playerName);
+        List<GridPosition> GridPosition = new ArrayList<>();
+        for (Grid g : actualGrids) {
+            GridPosition.add(g.toPosition());
+        }
+        return GridPosition;
+    }
 }

@@ -191,6 +191,16 @@ public class Stage {
         return buyable_grid;
     }
 
+    public List<Grid> getSpawnableGrids(String playerName) {
+        strategist p = PlayerList.get(playerName);
+        if (p == null) return new ArrayList<>();
+
+        List<Grid> spawnable_grid = new ArrayList<>();
+        spawnable_grid = p.getGrids();
+        return spawnable_grid;
+    }
+
+
     public boolean buyGridAPI(String playerName, int row, int col) {
         strategist p = PlayerList.get(playerName);
         if (p == null) return false;

@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import bgImage from '../assets/bg.svg';
 
-import solitaireBanner from '../assets/solitaire.svg';
-import duelBanner from '../assets/duel.svg';
-import autoBanner from '../assets/auto.svg';
+import solitaireBanner from '../assets/Banner/solitaire.svg';
+import duelBanner from '../assets/Banner/duel.svg';
+import autoBanner from '../assets/Banner/auto.svg';
 import BackButton from "../components/BackButton.tsx";
 
 const ModeSelect = () => {

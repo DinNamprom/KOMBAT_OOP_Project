@@ -1,14 +1,13 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 1. Import รูปภาพทั้งหมดที่เราต้องการ Preload ไว้ล่วงหน้า
 import bgImage from '../assets/bg.svg';
-import solitaireBanner from '../assets/solitaire.svg';
-import duelBanner from '../assets/duel.svg';
-import autoBanner from '../assets/auto.svg';
+import solitaireBanner from '../assets/Banner/solitaire.svg';
+import duelBanner from '../assets/Banner/duel.svg';
+import autoBanner from '../assets/Banner/auto.svg';
 import Title from "../components/Title.tsx";
 
-const Loading = () => {
+const LoadingToModeSelect = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -31,8 +30,8 @@ const Loading = () => {
         };
 
         // สร้าง Promise 2 ตัว:
-        // 1. ตัวนับเวลา 2 วินาที (เพื่อให้เห็นหน้า Loading นานพอ)
-        const minimumTimer = new Promise((resolve) => setTimeout(resolve, 2000));
+        // 1. ตัวนับเวลา 2 วินาที
+        const minimumTimer = new Promise((resolve) => setTimeout(resolve, 500));
 
         // 2. ตัวโหลดรูปภาพ
         const imageLoading = preloadImages(imagesToPreload);
@@ -59,4 +58,4 @@ const Loading = () => {
     );
 };
 
-export default Loading;
+export default LoadingToModeSelect;

@@ -12,7 +12,7 @@ const StrategyTextBox = ({ value, onChange }: StrategyTextBoxProps) => {
     return (
         <div className="flex flex-col items-center gap-2 w-full">
             {/* กรอบสี่เหลี่ยมด้านนอก */}
-            t<div className="relative inline-block w-full max-w-[750px]">
+            <div className="relative inline-block w-full max-w-[750px]">
                 <img
                     src={frameImage}
                     alt="Outer Frame"

@@ -69,7 +69,7 @@ const MinionSetup = () => {
                 backgroundRepeat: 'no-repeat'
             }}
         >
-            <BackButton onClick={() => navigate("/loading")} />
+            <BackButton onClick={() => navigate("/loadingMode")} />
 
             <div className="flex flex-row items-center justify-center gap-3 px-4 z-10">
 
@@ -141,7 +141,7 @@ const MinionSetup = () => {
                 <div className="absolute bottom-8 right-8 z-50">
                     <CyberButton
                         altText="Apply & Saving"
-                        onClick={() => navigate('/MainGame')}
+                        onClick={() => navigate('/loadingGame')}
                     />
                 </div>
             )}

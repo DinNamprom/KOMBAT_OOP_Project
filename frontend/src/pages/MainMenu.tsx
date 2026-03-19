@@ -23,7 +23,7 @@ const MainMenu = () => {
                     <CyberButton
                         altText="Start"
                         // เปลี่ยนตรงนี้ให้ไปที่หน้า loading
-                        onClick={() => navigate('/loading')}
+                        onClick={() => navigate('/loadingMode')}
                     />
                     <CyberButton
                         altText="Edit Config"

@@ -132,17 +132,16 @@ const MinionSetupByID = () => {
         >
             <BackButton onClick={() => navigate(-1)} />
 
-            <div className="flex flex-col lg:flex-row w-full max-w-[1400px] h-full items-center justify-center gap-10 mt-12 lg:mt-0">
+            <div className="flex flex-row w-full max-w-[1400px] h-full items-center justify-center gap-10 mt-0">
 
                 <div className="flex flex-col items-center justify-center gap-8 w-full lg:w-[40%]">
-                    {/* รูปตัวละคร */}
                     <img
                         src={currentChar.img}
                         alt={charName}
                         className="w-[250px] md:w-[350px] h-auto object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]"
                     />
 
-                    {/* 🌟 กล่อง Status แบบใหม่ ใช้ SVG กรอบและ Input เพื่อให้แก้ไขได้ */}
+                    {/* กล่อง Status แบบใหม่ ใช้ SVG กรอบและ Input เพื่อให้แก้ไขได้ */}
                     <div className="relative w-[320px] h-[140px] flex flex-col justify-center items-center">
                         {/* รูปกรอบพื้นหลัง (SVG) */}
                         <img

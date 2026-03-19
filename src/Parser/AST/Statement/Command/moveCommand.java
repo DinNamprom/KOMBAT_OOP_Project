@@ -1,0 +1,20 @@
+package Parser.AST.Statement.Command;
+
+import Parser.AST.Enum.Direction;
+
+import java.util.Map;
+
+public record moveCommand(Direction dir) implements Command {
+
+    @Override
+    public Boolean exe(Map<String, Long> var) {
+        // Execute move command
+        IO.println("-> [ACTION] Move: " + dir.toString());
+        return true;
+    }
+
+    @Override
+    public void prettyPrint(StringBuilder sb) {
+        sb.append("move ").append(dir);
+    }
+}

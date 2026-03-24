@@ -4,7 +4,10 @@ package com.example.WebAPI.controller;
 import com.example.WebAPI.Board.Grid;
 import com.example.WebAPI.GameEngine.Stage;
 import com.example.WebAPI.Minion.minion_kind;
+import com.example.WebAPI.Parser.AST.Statement.statement;
+import com.example.WebAPI.Parser.parser;
 import com.example.WebAPI.Strategist.strategist;
+import com.example.WebAPI.dto.CheckStartegy;
 import com.example.WebAPI.dto.CreateMinion;
 
 import com.example.WebAPI.dto.CreateModeConfig;
@@ -14,9 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import com.example.WebAPI.repository.GameService;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/game")
@@ -37,7 +39,7 @@ public class GameController {
     }
     //เพิ่มผู้เล่นเข้าเกม
     @PostMapping("/{gameID}/player")
-    public boolean JoinGame(@PathVariable UUID gameID, @RequestParam String playerName) {
+    public UUID JoinGame(@PathVariable UUID gameID, @RequestParam String playerName) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return false;
 
@@ -64,6 +66,20 @@ public class GameController {
             return false;
         }}
 
+    //Check Strategy
+    @PostMapping("/{gameID}/minion-kind")
+    public boolean CheckStrategy(@PathVariable UUID gameID, @RequestBody CheckStartegy startegy) {
+        try {
+            parser p = new parser(startegy.getStrategy());
+            statement ast = p.parse();
+            Map<String, Long> v = new HashMap<>();
+            ast.exe(v);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return false;
+        }}
+
     //ยืนยันการเริ่มเกม
     @PostMapping("/{gameID}/start")
     public boolean StartGame(@PathVariable UUID gameID) {
@@ -76,8 +92,11 @@ public class GameController {
 
     //GAMESTATE
     //ดึงข้อมูลทั้งหมดเพื่อแสดงผล
-    @GetMapping("/{gameID}/stat")
-    public Stage GetGameStat(@PathVariable UUID gameID) {return gameService.getGame (gameID);}
+    @GetMapping("/{gameID}/{playerName}")
+    public Stage MinionAction(@PathVariable UUID gameID ,@PathVariable String playerName) {
+        return gameService.getGame (gameID);
+
+    }
 
 
     //ดึงรายการพิกัด Grid ที่ผู้เล่นคนนั้นสามารถซื้อได้ (อยู่ติดกับพื้นที่เดิม)

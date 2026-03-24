@@ -41,14 +41,14 @@ public class minion {
         action = this.kind.getStrategy();
     }
 
-    public minion(minion_kind kind) throws Exception {
-        this.kind = kind;
-        this.owner = new Player("", 41);
-        action = this.kind.getStrategy();
-        this.row = 0;
-        this.col = 0;
-        variable = new HashMap<>();
-    }
+//    public minion(minion_kind kind) throws Exception {
+//        this.kind = kind;
+//        this.owner = new Player(null, 41);
+//        action = this.kind.getStrategy();
+//        this.row = 0;
+//        this.col = 0;
+//        variable = new HashMap<>();
+//    }
 
 
     public void resetInverse() { inverse = false; }

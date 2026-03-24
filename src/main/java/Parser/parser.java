@@ -5,15 +5,15 @@ import Parser.AST.Enum.InfoType;
 import Parser.AST.Enum.Operator;
 import Parser.AST.Expression.*;
 import Parser.AST.Expression.Number;
+import Parser.AST.Node;
 import Parser.AST.Statement.*;
 import Parser.AST.Statement.Command.Command;
 import Parser.AST.Statement.Command.atkCommand;
 import Parser.AST.Statement.Command.doneCommand;
 import Parser.AST.Statement.Command.moveCommand;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.sql.Statement;
+import java.util.*;
 
 public class parser {
     private static tokenizer tk;
@@ -306,5 +306,16 @@ public class parser {
             case "^" -> Operator.POW;
             default -> throw new IllegalArgumentException("Unknown operator: " + token);
         };
+    }
+
+    public static void main(String[] args) {
+        parser p = new parser("t = t+1 \n move  \n shoot up 3*(t+1)-(9/2)");
+        try {
+            statement ast = p.parse();
+            Map<String, Long> v = new HashMap<>();
+            ast.exe(v);
+        }catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 }

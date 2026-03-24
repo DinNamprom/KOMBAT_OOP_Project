@@ -4,11 +4,9 @@ package Strategist;
 import Board.Grid;
 import Config.GameConfig;
 import Minion.minion;
+import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Player implements strategist {
     private long Budget = 0;
@@ -20,6 +18,8 @@ public class Player implements strategist {
     private final String name;
     private final Map<String, Long> golb_variable = new HashMap<>();
     private boolean inverse = false;
+    @Setter
+    private UUID uuid;
 
     public Player(String name, long maxMinionsCreate){
         this.name = name;
@@ -88,6 +88,9 @@ public class Player implements strategist {
         grids.add(grid);
         grid.setSpawnOwner(this);
     }
+
+    @Override
+    public UUID getUUID() {return uuid;}
 
     public void clearGrid(){
         Minions.removeIf(m -> m.getHp() <= 0);

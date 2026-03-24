@@ -4,6 +4,8 @@ import Minion.minion;
 import Parser.AST.Enum.Direction;
 import Parser.AST.Expression.Expr;
 
+import java.util.Map;
+
 public record atkCommand(Direction dir, Expr pwr) implements Command {
 
     @Override
@@ -17,6 +19,13 @@ public record atkCommand(Direction dir, Expr pwr) implements Command {
         minion.getOwner().setBudget(current_budget-total_cost);
         System.out.println("-> [ACTION] Attack: " + dmg + " cost: " + total_cost);
         minion.Shoot(dir, dmg);
+        return true;
+    }
+
+    @Override
+    public Boolean exe(Map<String, Long> Val) {
+        long dmg = pwr.eval(Val);
+        System.out.println("-> [ACTION] Attack: " + dmg + " cost: " + dmg + " + 1");
         return true;
     }
 

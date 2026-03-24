@@ -75,7 +75,6 @@ public class Stage {
         }while (PlayerList.size() < max_player);
     }
 
-
     public void add_available_minion(minion_kind m) {
         minion_kinds.put(m.getName(), m);
     }
@@ -105,7 +104,6 @@ public class Stage {
         }
     }
 
-
     public void setupTurn() {
         turn t = new turn(current_turn, config, board);
         PlayerList.forEach((name, player) -> {
@@ -117,8 +115,6 @@ public class Stage {
             }
         });
     }
-
-
 
     private strategist endgame_cal() {
         List<strategist> list = new ArrayList<>(PlayerList.values());
@@ -166,9 +162,6 @@ public class Stage {
         }
         return winner;
     }
-
-
-
 
     public List<Grid> getBuyableGrids(String playerName) {
         strategist p = PlayerList.get(playerName);

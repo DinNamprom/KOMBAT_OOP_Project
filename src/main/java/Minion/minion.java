@@ -5,12 +5,11 @@ import Parser.AST.Enum.Direction;
 import Parser.AST.Enum.InfoType;
 import Parser.AST.Statement.statement;
 import Strategist.*;
+import dto.Action;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @Getter
 public class minion {
@@ -22,10 +21,13 @@ public class minion {
     private long hp;
     private int row;
     private int col;
+    private long no;
     private final Map<String, Long> variable;
     private final statement action;
     @Setter
     private boolean inverse = false;
+    @Getter
+    private final List<Action> actions = new ArrayList<>();
 
     public minion(minion_kind kind, strategist owner, long initHp, int start_row, int start_col) throws Exception {
         this.kind = kind;
@@ -35,6 +37,7 @@ public class minion {
         this.col = start_col;
         variable = new HashMap<>();
         action = this.kind.getStrategy();
+        this.no = this.owner.getMinion_Create() + 1;
     }
 
     public minion(minion_kind kind) throws Exception {
@@ -149,11 +152,16 @@ public class minion {
                 long def = target.getKind().defenseFactor();
                 long r_dmg = Math.max(0, dmg-def);
                 target.receive_dmg(r_dmg);
+                Action action = new Action(row,col,true, target.getOwner().getUUID(), target.getNo());
+                this.actions.add(action);
                 return;
             }
             cur = cur.getGrid(actual_dir);
         }
+        Action action = new Action(row,col,true, null, -1);
+        this.actions.add(action);
     }
+
     public void receive_dmg(long dmg) {
         this.hp -= dmg;
         if(isDead()) {

@@ -4,6 +4,8 @@ import Minion.minion;
 import Parser.AST.Enum.Direction;
 import Parser.AST.Enum.InfoType;
 
+import java.util.Map;
+
 public record InfoExpr(InfoType info, Direction dir) implements Expr {
 
     public InfoExpr(InfoType type) {
@@ -23,6 +25,22 @@ public record InfoExpr(InfoType info, Direction dir) implements Expr {
             case NEARBY -> {
                 System.out.println("-> [SENSOR] Checking Nearby Direction " + dir.toString() + "...");
                 return minion.CheckDir(InfoType.NEARBY, dir);
+            }// add Nearby direction later
+        }
+        return 0L;
+    }
+
+    @Override
+    public Long eval(Map<String, Long> Val) {
+        switch (info) {
+            case ALLY -> {
+                System.out.println("-> [SENSOR] Checking Ally...");
+            } //add Ally compute later
+            case OPPONENT -> {
+                System.out.println("-> [SENSOR] Checking Opponent...");
+            } // same as ally
+            case NEARBY -> {
+                System.out.println("-> [SENSOR] Checking Nearby Direction " + dir.toString() + "...");
             }// add Nearby direction later
         }
         return 0L;

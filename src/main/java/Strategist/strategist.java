@@ -6,6 +6,7 @@ import Minion.minion;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 public interface strategist {
@@ -25,7 +26,7 @@ public interface strategist {
     long getMinion_Create();
     boolean isMaxMinion();
     void initVariable(GameConfig config);
-
+    UUID getUUID();
     void updateVariable();
     void checkGolb_variable();
     void addGolb_variable();

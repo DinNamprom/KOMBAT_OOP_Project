@@ -9,6 +9,7 @@ import Minion.minion;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NonePlayer extends Player{
@@ -102,6 +103,11 @@ public class NonePlayer extends Player{
     @Override
     public boolean get_player_dir() {
         return super.get_player_dir();
+    }
+
+    @Override
+    public UUID getUUID() {
+        return super.getUUID();
     }
 
     @Override

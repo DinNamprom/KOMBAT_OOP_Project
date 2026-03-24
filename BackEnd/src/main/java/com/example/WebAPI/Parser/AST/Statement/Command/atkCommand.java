@@ -3,7 +3,6 @@ package com.example.WebAPI.Parser.AST.Statement.Command;
 import com.example.WebAPI.Minion.minion;
 import com.example.WebAPI.Parser.AST.Enum.Direction;
 import com.example.WebAPI.Parser.AST.Expression.Expr;
-import com.example.WebAPI.Parser.AST.Statement.Command.Command;
 
 import java.util.Map;
 

@@ -5,12 +5,11 @@ import com.example.WebAPI.Parser.AST.Enum.Direction;
 import com.example.WebAPI.Parser.AST.Enum.InfoType;
 import com.example.WebAPI.Parser.AST.Statement.statement;
 import com.example.WebAPI.Strategist.*;
+import com.example.WebAPI.dto.Action;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @Getter
 public class minion {
@@ -22,8 +21,12 @@ public class minion {
     private long hp;
     private int row;
     private int col;
+    @Getter
+    private long no;
     private final Map<String, Long> variable;
     private final statement action;
+    @Getter
+    private final List<Action> actions = new ArrayList<>();
     @Setter
     private boolean inverse = false;
 
@@ -34,6 +37,7 @@ public class minion {
         this.row = start_row;
         this.col = start_col;
         variable = new HashMap<>();
+        this.no = this.owner.getMinion_Create() + 1;
         action = this.kind.getStrategy();
     }
 
@@ -149,11 +153,16 @@ public class minion {
                 long def = target.getKind().defenseFactor();
                 long r_dmg = Math.max(0, dmg-def);
                 target.receive_dmg(r_dmg);
+                Action action = new Action(row,col,true,target.getOwner().getUUID(),target.getNo());
+                actions.add(action);
                 return;
             }
             cur = cur.getGrid(actual_dir);
         }
+        Action action = new Action(row, col, true, null, -1);
+        actions.add(action);
     }
+
     public void receive_dmg(long dmg) {
         this.hp -= dmg;
         if(isDead()) {

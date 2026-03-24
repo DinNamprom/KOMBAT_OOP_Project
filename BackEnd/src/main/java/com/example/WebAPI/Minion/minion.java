@@ -153,13 +153,13 @@ public class minion {
                 long def = target.getKind().defenseFactor();
                 long r_dmg = Math.max(0, dmg-def);
                 target.receive_dmg(r_dmg);
-                Action action = new Action(row,col,true,target.getOwner().getUUID(),target.getNo());
+                Action action = new Action(row,col,hp,true,target.getOwner().getUUID(),target.getNo(),target.getHp());
                 actions.add(action);
                 return;
             }
             cur = cur.getGrid(actual_dir);
         }
-        Action action = new Action(row, col, true, null, -1);
+        Action action = new Action(row, col,hp, true, null, -1,-1);
         actions.add(action);
     }
 

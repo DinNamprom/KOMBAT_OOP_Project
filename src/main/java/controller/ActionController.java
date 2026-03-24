@@ -32,10 +32,10 @@ public class ActionController {
         Stage stage = gameService.getGame(spawnMinion.getGameID());
         if (stage == null) return false;
 
-        // เรียกใช้ API Method ที่เพิ่งสร้างใหม่
+
         return stage.spawnMinionAPI(
                 spawnMinion.getPlayerName(),
-                String.valueOf(spawnMinion.getKind()),
+                spawnMinion.getKind(),
                 spawnMinion.getRow(),
                 spawnMinion.getCol());
     }

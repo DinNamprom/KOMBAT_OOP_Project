@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NonePlayer extends Player {
 
-    public NonePlayer(String name, long maxMinionsCreate){
-        super(name,maxMinionsCreate);
+    public NonePlayer(String name,UUID player_id, long maxMinionsCreate){
+        super(name,player_id,maxMinionsCreate);
     }
     @Override
     public List<minion> getMinions() {

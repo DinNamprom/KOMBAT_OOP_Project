@@ -18,11 +18,11 @@ public class Player implements strategist {
     private final String name;
     private final Map<String, Long> golb_variable = new HashMap<>();
     private boolean inverse = false;
-    @Setter
-    private UUID uuid;
+    private final UUID uuid;
 
-    public Player(String name, long maxMinionsCreate){
+    public Player(String name,UUID player_id, long maxMinionsCreate){
         this.name = name;
+        this.uuid = player_id;
         this.max_minionsCreate = maxMinionsCreate;
     }
 

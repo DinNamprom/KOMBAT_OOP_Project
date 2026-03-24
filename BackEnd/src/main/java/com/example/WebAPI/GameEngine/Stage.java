@@ -7,7 +7,6 @@ import com.example.WebAPI.Parser.AST.Enum.Direction;
 import com.example.WebAPI.Strategist.*;
 import com.example.WebAPI.Board.Grid;
 import com.example.WebAPI.Board.Board;
-import com.example.WebAPI.dto.GridPosition;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -21,7 +20,7 @@ public class Stage {
     private final GameConfig config;
     private final int max_player = 2;
     @Getter
-    private final Map<String, strategist> PlayerList = new LinkedHashMap<>();
+    private final Map<UUID, strategist> PlayerList = new LinkedHashMap<>();
     private final Mode mode;
     @Getter
 
@@ -39,16 +38,16 @@ public class Stage {
 
     public int getCurrentTurn() { return current_turn; }
 
-    public boolean addPlayer(String name) {
-        if (PlayerList.containsKey(name) || PlayerList.size() >= max_player) {
+    public boolean addPlayer() {
+        UUID uuid = UUID.randomUUID();
+        if (PlayerList.containsKey(uuid) || PlayerList.size() >= max_player) {
             return false; // ชื่อซ้ำ หรือห้องเต็ม
         }
-
         strategist newPlayer;
         if (this.mode == Mode.AUTO || (this.mode == Mode.SOLITAIRE && PlayerList.size() == 1)) {
-            newPlayer = new NonePlayer("Bot " + (PlayerList.size() + 1), config.maxSpawns);
+            newPlayer = new NonePlayer("Bot " + (PlayerList.size() + 1),uuid, config.maxSpawns);
         } else {
-            newPlayer = new Player(name, config.maxSpawns);
+            newPlayer = new Player("Player" + (PlayerList.size() + 1),uuid, config.maxSpawns);
         }
 
         // กำหนดฝั่ง (บนซ้าย หรือ ล่างขวา)
@@ -56,25 +55,13 @@ public class Stage {
             newPlayer.set_player_dir(true);
         }
 
-        PlayerList.put(newPlayer.getName(), newPlayer);
+        PlayerList.put(newPlayer.getUUID(), newPlayer);
 
         if (PlayerList.size() == max_player) {
             PlayerList.values().forEach(this::Assign_Start_Gird);
         }
         return true;
     }
-
-    private void auto_mode() {
-        do {
-            String name = "Bot " + (PlayerList.size()+1);
-            strategist temp = new NonePlayer(name,config.maxSpawns);
-            if (PlayerList.size()%2 == 1) {
-                temp.set_player_dir(true);
-            }
-            PlayerList.put(name,temp);
-        }while (PlayerList.size() < max_player);
-    }
-
 
     public void add_available_minion(minion_kind m) {
         minion_kinds.put(m.getName(), m);
@@ -293,7 +280,7 @@ public class Stage {
             if (this.mode == Mode.SOLITAIRE || this.mode == Mode.AUTO) {
                 while (PlayerList.size() < max_player) {
                     // addPlayer จะไปเรียกการสร้าง NonePlayer (Bot) ให้ถ้าชื่อไม่ซ้ำ
-                    addPlayer("Bot " + (PlayerList.size() + 1));
+                    addPlayer();
                 }
             } else {
                 return false; // โหมด DUEL แต่คนไม่ครบ 2 คน เริ่มเกมไม่ได้

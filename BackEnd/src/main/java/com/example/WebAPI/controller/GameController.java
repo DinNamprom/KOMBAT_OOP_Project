@@ -6,7 +6,6 @@ import com.example.WebAPI.GameEngine.Stage;
 import com.example.WebAPI.Minion.minion_kind;
 import com.example.WebAPI.Parser.AST.Statement.statement;
 import com.example.WebAPI.Parser.parser;
-import com.example.WebAPI.Strategist.strategist;
 import com.example.WebAPI.dto.CheckStartegy;
 import com.example.WebAPI.dto.CreateMinion;
 
@@ -39,11 +38,10 @@ public class GameController {
     }
     //เพิ่มผู้เล่นเข้าเกม
     @PostMapping("/{gameID}/player")
-    public UUID JoinGame(@PathVariable UUID gameID, @RequestParam String playerName) {
+    public boolean JoinGame(@PathVariable UUID gameID, @RequestParam String playerName) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return false;
-
-        return stage.addPlayer(playerName);
+        return stage.addPlayer();
     }
 
     //กำหนดชนิดและกลยุทธ์ของ Minion ก่อนเริ่มเกม

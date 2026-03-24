@@ -15,14 +15,14 @@ export interface CreateMinion {
 
 export interface BuyGrid {
     gameID: string;
-    playerName: string;
+    playerID: string;
     row: number;
     col: number;
 }
 
 export interface SpawnMinion {
     gameID: string;
-    playerName: string;
+    playerID: string;
     kind: string;
     row: number;
     col: number;
@@ -44,8 +44,8 @@ export const api = {
         return response.text();
     },
 
-    joinPlayer: async (gameID: string, playerName: string): Promise<boolean> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/player?playerName=${encodeURIComponent(playerName)}`, {
+    joinPlayer: async (gameID: string, playerID: string): Promise<boolean> => {
+        const response = await fetch(`${API_BASE_URL}/game/${gameID}/player?playerID=${encodeURIComponent(playerID)}`, {
             method: 'POST',
         });
         return response.json();
@@ -72,13 +72,13 @@ export const api = {
         return response.json();
     },
 
-    getBuyableGrids: async (gameID: string, playerName: string): Promise<GridPosition[]> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/${playerName}/buyable-grids`);
+    getBuyableGrids: async (gameID: string, playerID: string): Promise<GridPosition[]> => {
+        const response = await fetch(`${API_BASE_URL}/game/${gameID}/${playerID}/buyable-grids`);
         return response.json();
     },
 
-    getSpawnableGrids: async (gameID: string, playerName: string): Promise<GridPosition[]> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/${playerName}/spawnable-grids`);
+    getSpawnableGrids: async (gameID: string, playerID: string): Promise<GridPosition[]> => {
+        const response = await fetch(`${API_BASE_URL}/game/${gameID}/${playerID}/spawnable-grids`);
         return response.json();
     },
 
@@ -101,8 +101,8 @@ export const api = {
         return response.json();
     },
 
-    endTurn: async (gameID: string, playerName: string): Promise<boolean> => {
-        const response = await fetch(`${API_BASE_URL}/action/endTurn/${gameID}/${playerName}`, {
+    endTurn: async (gameID: string, playerID: string): Promise<boolean> => {
+        const response = await fetch(`${API_BASE_URL}/action/endTurn/${gameID}/${playerID}`, {
             method: 'POST',
         });
         return response.json();

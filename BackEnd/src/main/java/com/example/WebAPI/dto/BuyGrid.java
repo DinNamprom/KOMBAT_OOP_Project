@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class BuyGrid {
     private UUID gameID;
-    private String PlayerName;
+    private UUID PlayerName;
     private int row;
     private int col;
 }

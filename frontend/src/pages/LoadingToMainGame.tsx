@@ -3,6 +3,7 @@ import bgImage from '../assets/bg.svg';
 import Title from "../components/Title.tsx";
 import { useEffect } from "react";
 import { api } from "../services/api";
+import { v4 as uuidv4 } from 'uuid';
 
 const LoadingToMainGame = () => {
     const navigate = useNavigate();
@@ -17,9 +18,14 @@ const LoadingToMainGame = () => {
             }
 
             try {
+                const myId: string = uuidv4();
+                const myId2: string = uuidv4();
+                localStorage.setItem('Player1', myId);
+                localStorage.setItem('Player2', myId2);
                 // 1. Join Players (Assuming "Player 1" and "Player 2")
                 // Note: JoinGame in backend might need to be called twice for DUEL
-                await api.joinPlayer(gameID, "Player 1");
+                await api.joinPlayer(gameID, myId);
+                await api.joinPlayer(gameID, myId2);
                 // For other modes, backend start_game_setup will fill with bots
                 // But for DUEL we might need to join Player 2 explicitly if we want human vs human
                 // For now, let's just join Player 1 and let backend handle the rest based on mode
@@ -48,7 +54,7 @@ const LoadingToMainGame = () => {
                     alert("Failed to start game. Check if all players joined.");
                     navigate('/setup');
                 }
-            } catch (error) {
+                } catch (error) {
                 console.error("Error initializing game:", error);
                 alert("Error connecting to backend.");
                 navigate('/');

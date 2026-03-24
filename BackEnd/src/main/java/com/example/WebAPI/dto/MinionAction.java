@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MinionAction {
-    private int no;
+    private long no;
     private UUID owner_uuid;
     private List<Action> actions;
 }

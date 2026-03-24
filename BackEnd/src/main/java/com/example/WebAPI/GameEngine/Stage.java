@@ -38,16 +38,16 @@ public class Stage {
 
     public int getCurrentTurn() { return current_turn; }
 
-    public boolean addPlayer() {
-        UUID uuid = UUID.randomUUID();
-        if (PlayerList.containsKey(uuid) || PlayerList.size() >= max_player) {
+    public boolean addPlayer(UUID playerID) {
+
+        if (PlayerList.containsKey(playerID) || PlayerList.size() >= max_player) {
             return false; // ชื่อซ้ำ หรือห้องเต็ม
         }
         strategist newPlayer;
         if (this.mode == Mode.AUTO || (this.mode == Mode.SOLITAIRE && PlayerList.size() == 1)) {
-            newPlayer = new NonePlayer("Bot " + (PlayerList.size() + 1),uuid, config.maxSpawns);
+            newPlayer = new NonePlayer("Bot " + (PlayerList.size() + 1),playerID, config.maxSpawns);
         } else {
-            newPlayer = new Player("Player" + (PlayerList.size() + 1),uuid, config.maxSpawns);
+            newPlayer = new Player("Player" + (PlayerList.size() + 1),playerID, config.maxSpawns);
         }
 
         // กำหนดฝั่ง (บนซ้าย หรือ ล่างขวา)
@@ -157,7 +157,7 @@ public class Stage {
 
 
 
-    public List<Grid> getBuyableGrids(String playerName) {
+    public List<Grid> getBuyableGrids(UUID playerName) {
         strategist p = PlayerList.get(playerName);
         if (p == null) return new ArrayList<>();
 
@@ -178,7 +178,7 @@ public class Stage {
         return buyable_grid;
     }
 
-    public List<Grid> getSpawnableGrids(String playerName) {
+    public List<Grid> getSpawnableGrids(UUID playerName) {
         strategist p = PlayerList.get(playerName);
         if (p == null) return new ArrayList<>();
 
@@ -188,7 +188,7 @@ public class Stage {
     }
 
 
-    public boolean buyGridAPI(String playerName, int row, int col) {
+    public boolean buyGridAPI(UUID playerName, int row, int col) {
         strategist p = PlayerList.get(playerName);
         if (p == null) return false;
 
@@ -209,7 +209,7 @@ public class Stage {
     }
 
 
-    public boolean spawnMinionAPI(String playerName, String kindName, int row, int col) {
+    public boolean spawnMinionAPI(UUID playerName, String kindName, int row, int col) {
         strategist p = PlayerList.get(playerName);
         if (p == null) return false;
 
@@ -276,28 +276,15 @@ public class Stage {
         }
 
         // 2. ถ้าโหมด AUTO หรือ SOLITAIRE ผู้เล่นยังไม่ครบ ให้เติม Bot อัตโนมัติ
-        if (PlayerList.size() < max_player) {
-            if (this.mode == Mode.SOLITAIRE || this.mode == Mode.AUTO) {
-                while (PlayerList.size() < max_player) {
-                    // addPlayer จะไปเรียกการสร้าง NonePlayer (Bot) ให้ถ้าชื่อไม่ซ้ำ
-                    addPlayer();
-                }
+        if (PlayerList.size() == max_player) {
+            this.current_turn = 1;
+            setupTurn();
+            return true;
             } else {
-                return false; // โหมด DUEL แต่คนไม่ครบ 2 คน เริ่มเกมไม่ได้
+                return false; // คนไม่ครบ 2 คน เริ่มเกมไม่ได้
             }
         }
 
-        // 3. ล้างกระดานและแจกพื้นที่เริ่มต้น (Start Grids) ให้ผู้เล่นทุกคน
-        PlayerList.values().forEach(player -> {
-            player.getGrids().clear(); // เคลียร์เพื่อความชัวร์หากมีการกด Start ซ้ำ
-            Assign_Start_Gird(player);
-        });
-
-        // 4. เซ็ตอัพเทิร์นที่ 1 (แจกเงินตั้งต้น initBudget และเตรียมตัวแปร global)
-        this.current_turn = 1;
-        setupTurn();
-
-        return true;
     }
 
 //    // ฟังก์ชันสำหรับสรุป Status ทั้งหมดของเกม
@@ -338,7 +325,7 @@ public class Stage {
 //            System.out.print("[" + g.getRow() + "," + g.getCol() + "] ");
 //        }
 //        System.out.println("\n");
-    }
+
 
 
 

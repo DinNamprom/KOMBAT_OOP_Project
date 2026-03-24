@@ -41,8 +41,8 @@ public class ActionController {
     }
 
     //จบช่วงเวลาการซื้อของผู้เล่น เพื่อสั่งให้ Backend รัน
-    @PostMapping("/endTurn/{gameID}/{playerName}")
-    public Boolean EndTurnPhase(@PathVariable UUID gameID, @PathVariable String playerName) {
+    @PostMapping("/endTurn/{gameID}/{playerID}")
+    public Boolean EndTurnPhase(@PathVariable UUID gameID, @PathVariable UUID playerID) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return false;
 

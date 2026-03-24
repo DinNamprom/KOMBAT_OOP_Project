@@ -116,7 +116,7 @@ public class NonePlayer extends Player {
     }
 
     public void auto_action(turn t, Stage stage) {
-        List<Grid> buyableGrid = stage.getBuyableGrids(this.getName());
+        List<Grid> buyableGrid = stage.getBuyableGrids(this.getUUID());
         AtomicBoolean buy = new AtomicBoolean(false);
         long hex_cost = stage.getConfig().HexCost;
         if (getBudget() > hex_cost) {

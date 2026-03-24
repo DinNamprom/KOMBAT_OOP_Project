@@ -13,6 +13,7 @@ public interface strategist {
     List<minion> getMinions();
     Map<String, Long> getGolbVariables();
     String getName();
+
     void addMinion(minion minion);
     void removeMinion(minion minion);
     long getBudget();

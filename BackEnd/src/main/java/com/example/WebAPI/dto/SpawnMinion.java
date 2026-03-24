@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class SpawnMinion {
     private UUID gameID;
-    private String playerName;
+    private UUID playerName;
     private String kind;
     private int row;
     private int col;

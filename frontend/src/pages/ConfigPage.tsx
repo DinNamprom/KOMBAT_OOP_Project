@@ -77,6 +77,7 @@ max_spawns=47`
                             onClick={() => {
                                 // เมื่อกด Submit ให้ลองปริ้นท์ค่าที่พิมพ์ออกมาดูครับ
                                 console.log("Saved Config:", configText);
+                                localStorage.setItem('gameConfig', configText);
                                 alert("Configuration Saved!");
                             }}
                         />

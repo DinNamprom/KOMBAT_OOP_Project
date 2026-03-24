@@ -1,18 +1,18 @@
-//package main;
-//
-//import Board.Board;
-//import Minion.minion;
-//import Minion.minion_kind;
-//import GameEngine.*;
-//        import Parser.AST.Statement.statement;
-//import Parser.parser;
-//import Parser.tokenizer;
-//import Strategist.Player;
-//
-//import java.io.IOException;
-//
-//public class maintest {
-//    public static void main(String[] args) {
+package main;
+
+import Board.Board;
+import Minion.minion;
+import Minion.minion_kind;
+import GameEngine.*;
+import Parser.AST.Statement.statement;
+import Parser.parser;
+import Parser.tokenizer;
+import Strategist.Player;
+
+import java.io.IOException;
+
+public class maintest {
+    public static void main(String[] args) {
 //        try {
 //            System.out.println("========== [ INITIALIZING GAME ] ==========");
 //
@@ -40,8 +40,8 @@
 //            System.out.println("❌ Error: " + e.getMessage());
 //            e.printStackTrace();
 //        }
-//    }
-//
+    }
+
 //    private static Stage getStage() throws Exception {
 //        Board board = new Board();
 //
@@ -49,7 +49,7 @@
 //        Stage stage = new Stage("src/main/java/config.txt", Mode.AUTO, board);
 //
 //        // 3. สร้างผู้เล่น P1 และ P2
-//        stage.create_player();
+////        stage.create_player();
 //
 //        // 4. สร้างและเพิ่มชนิดของ Minion เข้าร้านค้า
 //        // (ใช้ Record ตามที่คุณกำหนดไว้)
@@ -125,4 +125,4 @@
 //        stage.add_available_minion(sniper);
 //        return stage;
 //    }
-//}
+}

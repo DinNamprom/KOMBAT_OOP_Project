@@ -5,14 +5,12 @@ import Parser.AST.Enum.InfoType;
 import Parser.AST.Enum.Operator;
 import Parser.AST.Expression.*;
 import Parser.AST.Expression.Number;
-import Parser.AST.Node;
 import Parser.AST.Statement.*;
 import Parser.AST.Statement.Command.Command;
 import Parser.AST.Statement.Command.atkCommand;
 import Parser.AST.Statement.Command.doneCommand;
 import Parser.AST.Statement.Command.moveCommand;
 
-import java.sql.Statement;
 import java.util.*;
 
 public class parser {

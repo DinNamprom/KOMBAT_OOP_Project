@@ -1,9 +1,6 @@
 package dto;
-import Board.Grid;
-import Minion.minion_kind;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;

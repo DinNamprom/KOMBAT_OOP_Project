@@ -7,7 +7,6 @@ import Parser.AST.Enum.Direction;
 import Strategist.*;
 import Board.Grid;
 import Board.Board;
-import dto.GridPosition;
 import lombok.Getter;
 
 import java.io.IOException;

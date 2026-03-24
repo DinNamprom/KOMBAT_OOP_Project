@@ -2,6 +2,7 @@ package com.example.WebAPI.Parser;
 
 import com.example.WebAPI.Parser.AST.Enum.*;
 import com.example.WebAPI.Parser.AST.Expression.*;
+import com.example.WebAPI.Parser.AST.Expression.Number;
 import com.example.WebAPI.Parser.AST.Statement.*;
 import com.example.WebAPI.Parser.AST.Statement.Command.*;
 
@@ -301,7 +302,7 @@ public class parser {
     }
 
     public static void main(String[] args) {
-        parser p = new parser("t = t+1 \n move  \n shoot up 3*(t+1)-(9/2)");
+        parser p = new parser("t = t+1 \n move down  \n shoot up 3*(t+1)-(9/2)");
         try {
             statement ast = p.parse();
             Map<String, Long> v = new HashMap<>();

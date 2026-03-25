@@ -26,22 +26,41 @@ const LoadingToMainGame = () => {
                 // Note: JoinGame in backend might need to be called twice for DUEL
                 await api.joinPlayer(gameID, myId);
                 await api.joinPlayer(gameID, myId2);
+                console.log(myId,"1 Join Success");
+                console.log(myId2,"2 Join Success");
+
                 // For other modes, backend start_game_setup will fill with bots
                 // But for DUEL we might need to join Player 2 explicitly if we want human vs human
                 // For now, let's just join Player 1 and let backend handle the rest based on mode
                 
                 // 2. Create Minion Kinds
                 const configuredMinions = JSON.parse(localStorage.getItem('configuredMinions') || '{}');
-                for (const charId in configuredMinions) {
+                
+                // Default DB to fallback if not configured
+                const defaultDB: Record<string, any> = {
+                    'char1': { name: 'RGM-79 GM', hp: 100, def: 10, spawnCost: 100, strategy: "move down" },
+                    'char2': { name: 'ZAKU', hp: 120, def: 15, spawnCost: 150, strategy: "move forward" },
+                    'char3': { name: 'Gundam', hp: 120, def: 15, spawnCost: 150, strategy: "move forward" },
+                    'char4': { name: 'Red Comet', hp: 120, def: 15, spawnCost: 150, strategy: "move forward" },
+                    'char5': { name: 'Zeong', hp: 120, def: 15, spawnCost: 150, strategy: "move forward" }
+                };
+
+                for (const charId of ['char1', 'char2', 'char3', 'char4', 'char5']) {
                     const minionData = configuredMinions[charId];
+                    const name = minionData?.customName || defaultDB[charId].name;
+                    const hp = minionData?.stats?.hp || defaultDB[charId].hp;
+                    const spawncost = minionData?.stats?.spawnCost || defaultDB[charId].spawnCost;
+                    const def = minionData?.stats?.def || defaultDB[charId].def;
+                    const strategy = minionData?.strategyCode || defaultDB[charId].strategy;
+
                     await api.createMinionKind(gameID, {
-                        name: minionData.customName,
-                        hp: minionData.stats.hp,
-                        spawncost: minionData.stats.spawnCost,
-                        def: minionData.stats.def,
-                        strategy: minionData.strategyCode
+                        name,
+                        hp,
+                        spawncost,
+                        def,
+                        strategy
                     });
-                    console.log("Minion created with NAME:", minionData.customName);
+                    console.log("Minion registered:", name);
                 }
 
                 // 3. Start Game

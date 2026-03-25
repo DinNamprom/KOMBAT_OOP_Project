@@ -54,6 +54,8 @@ const characterDB: Record<string, any> = {
     }
 };
 
+import { api } from '../services/api';
+
 const MinionSetupByID = () => {
     const { charId } = useParams<{ charId: string }>();
     const navigate = useNavigate();
@@ -89,7 +91,23 @@ const MinionSetupByID = () => {
         }
     }, [charId, currentChar, navigate]);
 
-    const handleSaveAndApply = () => {
+    const handleSaveAndApply = async () => {
+        const gameID = localStorage.getItem('gameID');
+        if (gameID) {
+            console.log("Checking strategy with backend...");
+            try {
+                const isValid = await api.checkStrategy(gameID, strategyText);
+                if (!isValid) {
+                    alert("Invalid strategy syntax! Please check your code.");
+                    return;
+                }
+            } catch (error) {
+                console.error("Error checking strategy:", error);
+                alert("Failed to connect to strategy parser.");
+                return;
+            }
+        }
+
         // 🌟 อัปเดต Payload ให้รวมชื่อและ Status ที่แก้ไขแล้วส่งไปด้วย
         const payload = {
             characterId: currentChar.id,

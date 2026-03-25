@@ -10,6 +10,7 @@ import com.example.WebAPI.Parser.parser;
 import com.example.WebAPI.Strategist.strategist;
 import com.example.WebAPI.dto.*;
 
+import com.example.WebAPI.dto.Status.GameStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.example.WebAPI.repository.GameService;
@@ -92,12 +93,21 @@ public class GameController {
     @GetMapping("/{gameID}/{playerID}")
     public List<MinionAction> MinionAction(@PathVariable UUID gameID ,@PathVariable UUID playerID) {
         Stage stage = gameService.getGame(gameID);
-        if (stage == null) return null;
+        if (stage == null) return new ArrayList<>();
         strategist p = stage.getPlayerList().get(playerID);
+        if(p == null) {
+            System.out.println("Player is null");
+            return new ArrayList<>();
+        }
         List<MinionAction> PlayerMinionAction = new ArrayList<>();
         for (minion m : p.getMinions() ) {
-            MinionAction Actions = new MinionAction(m.getNo(),p.getUUID(),m.getActions());
-            PlayerMinionAction.add(Actions);
+            // Create a copy of the current actions to return to the frontend
+            List<Action> currentActions = new ArrayList<>(m.getActions());
+            MinionAction actionsDto = new MinionAction(m.getNo(), p.getUUID(), currentActions);
+            PlayerMinionAction.add(actionsDto);
+            
+            // Clear the actions in the backend so they aren't returned/processed again
+            m.clearActions();
         }
         return PlayerMinionAction;
     }
@@ -128,6 +138,13 @@ public class GameController {
             GridPosition.add(g.toPosition());
         }
         return GridPosition;
+    }
+
+    @GetMapping("/{gameID}/status")
+    public GameStatus GetGameStatus(@PathVariable UUID gameID) {
+        Stage stage = gameService.getGame(gameID);
+        if (stage == null) return null;
+        return stage.getGameStatus();
     }
 }
 

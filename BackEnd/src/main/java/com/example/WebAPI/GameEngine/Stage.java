@@ -7,9 +7,13 @@ import com.example.WebAPI.Parser.AST.Enum.Direction;
 import com.example.WebAPI.Strategist.*;
 import com.example.WebAPI.Board.Grid;
 import com.example.WebAPI.Board.Board;
+import com.example.WebAPI.dto.Status.GameStatus;
+import com.example.WebAPI.dto.Status.GridStatus;
+import com.example.WebAPI.dto.Status.MinionStatus;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.*;
 
 public class Stage {
@@ -154,9 +158,6 @@ public class Stage {
         return winner;
     }
 
-
-
-
     public List<Grid> getBuyableGrids(UUID playerName) {
         strategist p = PlayerList.get(playerName);
         if (p == null) return new ArrayList<>();
@@ -191,7 +192,7 @@ public class Stage {
     public boolean buyGridAPI(UUID playerName, int row, int col) {
         strategist p = PlayerList.get(playerName);
         if (p == null) return false;
-
+        System.out.println(p.getName());
         Grid target;
         try {
             target = board.getGrid(row, col);
@@ -219,7 +220,7 @@ public class Stage {
         if (!minion_kinds.containsKey(kindName)) return false;
 
         minion_kind k = minion_kinds.get(kindName);
-        turn t = new turn(current_turn, config, board);
+        turn t = new turn(current_turn, config , board);
 
         try {
             minion m = p.get_player_dir() ?
@@ -231,11 +232,11 @@ public class Stage {
         }
     }
 
-    public boolean executeTurnEnding() {
+    public boolean executeTurnEnding(UUID playerId) {
         turn t = new turn(current_turn, config, board);
-
+        strategist player = PlayerList.get(playerId);
         // ให้ Bot เล่นอัตโนมัติ (ถ้ามี)
-        PlayerList.forEach((name, player) -> {
+
             if (player instanceof NonePlayer) {
                 try {
                     ((NonePlayer) player).auto_action(t, this);
@@ -243,16 +244,11 @@ public class Stage {
                     System.out.println("Bot Error: " + e.getMessage());
                 }
             }
-        });
         // Minion รันโค้ด Strategy ของตัวเองทีละตัว
-        PlayerList.forEach((name, player) -> {
             t.minion_action(player);
-        });
 
         // เคลียร์ Minion ที่เลือดหมด (ตาย)
-        PlayerList.forEach((name, player) -> {
             t.clear_minion(player);
-        });
 
         // เช็คผู้ชนะ
         strategist winner = endgame_cal();
@@ -285,7 +281,19 @@ public class Stage {
             }
         }
 
+    public GameStatus getGameStatus() {
+        List<GridStatus> grid_list = new ArrayList<>();
+        for (int i=1;i<board.max_row();i++) {
+            for (int j=1;j<board.max_col();j++) {
+                Grid cur = board.getGrid(i,j);
+                strategist owner = cur.getSpawnOwner();
+                GridStatus grid_status = new GridStatus(cur.getRow(),cur.getCol(),owner != null? owner.getUUID():null);
+                grid_list.add(grid_status);
+            }
+        }
+        return new GameStatus(grid_list);
     }
+}
 
 //    // ฟังก์ชันสำหรับสรุป Status ทั้งหมดของเกม
 //    public void print_game_status() {

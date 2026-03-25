@@ -124,7 +124,7 @@ public class NonePlayer extends Player {
         }
         stage.getMinion_kinds().forEach((s, kind) -> {
             if (getBudget() > kind.getSpawnCost() && !buy.get()) {
-                for (Grid g: getGrids()) {
+                for (Grid g: super.getGrids()) {
                     if (!g.haveMinion()) {
                         if (!get_player_dir()) {
                             try {

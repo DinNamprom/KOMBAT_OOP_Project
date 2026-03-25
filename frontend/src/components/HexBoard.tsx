@@ -20,6 +20,7 @@ interface PlacedUnit {
     cellId: string;
     unitId: string;
     playerId: 1 | 2;
+    no?: number;
 }
 
 interface HexPieceProps {
@@ -41,25 +42,41 @@ interface HexData {
 }
 
 interface HexBoardProps {
+    gameID?: string;
+    player1ID?: string;
+    player2ID?: string;
     validPlacementCells?: string[];
     placedUnits?: PlacedUnit[];
     selectedUnit?: string | null;
     hoveredCell?: string | null;
     buyableCells?: string[];
+    player1Grids?: string[];
+    player2Grids?: string[];
     onCellClick?: (cellId: string) => void;
     onCellMouseEnter?: (cellId: string) => void;
     onCellMouseLeave?: () => void;
 }
 
 // ==========================================
+// Mapping: Backend Kind Name -> unitId
+// ==========================================
+const KIND_NAME_TO_ID: Record<string, string> = {
+    'RGM-79 GM': 'char1',
+    'ZAKU': 'char2',
+    'Gundam': 'char3',
+    'Red Comet': 'char4',
+    'Zeong': 'char5',
+};
+
+// ==========================================
 // Mapping: unitId -> sprite image
 // ==========================================
 const UNIT_SPRITE_MAP: Record<string, string> = {
-    gm: gmSprite,
-    zaku: zakuSprite,
-    gundam: gundamSprite,
-    redcomet: redCometSprite,
-    zeong: zeongSprite,
+    char1: gmSprite,
+    char2: zakuSprite,
+    char3: gundamSprite,
+    char4: redCometSprite,
+    char5: zeongSprite,
 };
 
 // Aura glow สำหรับแต่ละ Player
@@ -78,19 +95,16 @@ const HexPiece = ({ owner, character, unitPlayerId, isBuyableCell, isGhostPrevie
 
     return (
         <div className="relative w-[93px] h-[77px] flex items-center justify-center group">
-            {/* เลเยอร์ 1: พื้นหลังกระดาน (z-0) */}
             <img
                 src={hexBg}
                 alt={`Hex ${owner}`}
                 className="absolute inset-0 w-full h-full z-0"
             />
 
-            {/* เลเยอร์ 1.5:  ช่องที่ซื้อได้ */}
             {isBuyableCell && (
                 <div className="absolute inset-0 z-[1] bg-yellow-400/30 rounded-sm pointer-events-none animate-pulse" />
             )}
 
-            {/* เลเยอร์ 2: ตัวละคร + Aura (z-10 ลอยอยู่ด้านบน) */}
             {character && (
                 <img
                     src={character.imgSrc}
@@ -102,7 +116,6 @@ const HexPiece = ({ owner, character, unitPlayerId, isBuyableCell, isGhostPrevie
                 />
             )}
 
-            {/* เลเยอร์ 3: Ghost Preview ตอน Hover */}
             {isGhostPreview && ghostImgSrc && !character && (
                 <img
                     src={ghostImgSrc}
@@ -118,64 +131,120 @@ const HexPiece = ({ owner, character, unitPlayerId, isBuyableCell, isGhostPrevie
 // Component: กระดานใหญ่ (HexBoard)
 // ==========================================
 const HexBoard = ({
+                      gameID,
+                      player1ID,
+                      player2ID,
                       validPlacementCells = [],
                       placedUnits = [],
                       selectedUnit = null,
                       hoveredCell = null,
                       buyableCells = [],
+                      player1Grids = [],
+                      player2Grids = [],
                       onCellClick,
                       onCellMouseEnter,
                       onCellMouseLeave,
                   }: HexBoardProps) => {
-    const [boardData, setBoardData] = useState<HexData[]>([]);
+    const [boardData, setBoardData] = useState<HexData[][]>([]);
+    const [apiGrids, setApiGrids] = useState<{p1: string[], p2: string[]}>({ p1: [], p2: [] });
+    const [apiMinions, setApiMinions] = useState<PlacedUnit[]>([]);
 
-    // ขนาดและระยะห่างของกระดาน
     const hexWidth = 93;
     const hexHeight = 77;
     const xOffset = hexWidth * 0.7;
     const yOffset = hexHeight;
 
-    // สร้าง lookup สำหรับ placedUnits เพื่อค้นหาเร็วขึ้น (เก็บทั้ง unitId และ playerId)
+    // Fetch dynamic data from backend
+    useEffect(() => {
+        if (!gameID) return;
+
+        const fetchData = async () => {
+            try {
+                // NOTE: Expecting a new endpoint /game/{gameID}/status (See requirements list)
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/game/${gameID}/status`);
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                
+                // Map Grids
+                const p1Grids: string[] = [];
+                const p2Grids: string[] = [];
+                data.GridStatusList.forEach((g: any) => {
+                    const id = `${g.row - 1}-${g.col - 1}`;
+                    if (g.ownerID === player1ID) p1Grids.push(id);
+                    else if (g.ownerID === player2ID) p2Grids.push(id);
+                });
+                setApiGrids({ p1: p1Grids, p2: p2Grids });
+
+                // Map Minions
+//                 const minions: PlacedUnit[] = data.minions.map((m: any) => ({
+//                     cellId: `${m.row - 1}-${m.col - 1}`,
+//                     unitId: KIND_NAME_TO_ID[m.kindName] || m.kindName,
+//                     playerId: m.ownerID === player1ID ? 1 : 2
+//                 }));
+//                 setApiMinions(minions);
+            } catch (err) {
+                console.error("HexBoard fetch error:", err);
+            }
+        };
+
+        fetchData();
+        const interval = setInterval(fetchData, 2000); // Polling every 2s
+        return () => clearInterval(interval);
+    }, [gameID, player1ID, player2ID]);
+
+    const finalPlacedUnits = useMemo(() => {
+        // Use API minions if available, otherwise fallback to props
+        return apiMinions.length > 0 ? apiMinions : placedUnits;
+    }, [apiMinions, placedUnits]);
+
     const placedUnitMap = useMemo(() => {
         const map: Record<string, { unitId: string; playerId: 1 | 2 }> = {};
-        placedUnits.forEach((u) => { map[u.cellId] = { unitId: u.unitId, playerId: u.playerId }; });
+        finalPlacedUnits.forEach((u) => { map[u.cellId] = { unitId: u.unitId, playerId: u.playerId }; });
         return map;
-    }, [placedUnits]);
+    }, [finalPlacedUnits]);
 
-    // สร้าง Set สำหรับ validPlacementCells
     const validCellSet = useMemo(() => new Set(validPlacementCells), [validPlacementCells]);
-
-    // สร้าง Set สำหรับ buyableCells
     const buyableCellSet = useMemo(() => new Set(buyableCells), [buyableCells]);
+    
+    // Combine props grids and API grids
+    const p1Set = useMemo(() => new Set([...player1Grids, ...apiGrids.p1]), [player1Grids, apiGrids.p1]);
+    const p2Set = useMemo(() => new Set([...player2Grids, ...apiGrids.p2]), [player2Grids, apiGrids.p2]);
 
-    // จำลองการสร้างข้อมูลกระดานตอนโหลดหน้าเว็บ
     useEffect(() => {
-        const mockData: HexData[] = [];
-        for (let col = 0; col < 8; col++) {
-            for (let row = 0; row < 8; row++) {
+        const rows = 8;
+        const cols = 8;
+        const newBoard: HexData[][] = [];
+
+        for (let r = 0; r < rows; r++) {
+            const rowData: HexData[] = [];
+            for (let c = 0; c < cols; c++) {
                 let owner = "none";
-
-                // --- กำหนดอาณาเขต: Player 1 = Blue (ซ้าย), Player 2 = Red (ขวา) ---
-                if (
-                    (col === 0 && (row === 0 || row === 1)) ||
-                    (col === 1 && (row === 0 || row === 1)) ||
-                    (col === 2 && row === 0)
-                ) { owner = "red"; }
-
-                if (
-                    (col === 7 && (row === 6 || row === 7)) ||
-                    (col === 6 && (row === 6 || row === 7)) ||
-                    (col === 5 && row === 7)
-                ) { owner = "blue"; }
-
-                mockData.push({ id: `${col}-${row}`, col, row, owner, character: null });
+                
+//                 // Player 2 (Top-Left cluster) - Backend (1,1) area
+//                 // Based on Stage.java Assign_Start_Gird: (1,1), (2,1), (2,2), (2,3), (1,2)
+//                 // 0-indexed: (0,0), (1,0), (1,1), (1,2), (0,1)
+//                 if ((r === 0 && (c === 0 || c === 1)) ||
+//                     (r === 1 && (c === 0 || c === 1 || c === 2))) {
+//                     owner = "red";
+//                 }
+//
+//                 // Player 1 (Bottom-Right cluster) - Backend (8,8) area
+//                 // Based on Stage.java Assign_Start_Gird: (8,8), (7,8), (7,7), (7,6), (8,7)
+//                 // 0-indexed: (7,7), (6,7), (6,6), (6,5), (7,6)
+//                 if ((r === 7 && (c === 7 || c === 6)) ||
+//                     (r === 6 && (c === 7 || c === 6 || c === 5))) {
+//                     owner = "blue";
+//                 }
+                
+                rowData.push({ id: `${r}-${c}`, col: c, row: r, owner, character: null });
             }
+            newBoard.push(rowData);
         }
-        setBoardData(mockData);
+        setBoardData(newBoard);
     }, []);
 
     return (
-        // กรอบหลักของกระดาน คำนวณขนาดกว้าง-ยาวให้พอดีกับ 8x8
         <div
             className="relative mx-auto"
             style={{
@@ -183,58 +252,59 @@ const HexBoard = ({
                 height: `${(8 * yOffset) + (hexHeight / 2)}px`
             }}
         >
-            {/* 4.3 วนลูปวาด HexPiece 64 ชิ้น ตามตำแหน่ง */}
-            {boardData.map((hex) => {
-                // เงื่อนไขเยื้อง: ให้คอลัมน์คู่ (0, 2, 4...) ดรอปลงมา
-                const isEvenCol = hex.col % 2 === 0;
+            {boardData.map((row) => 
+                row.map((hex) => {
+                    // คืนค่าการเยื้องคอลัมน์คู่ (0, 2, 4...) ดรอปลงมา ตามเดิม
+                    const isEvenCol = hex.col % 2 === 0;
+                    const leftPos = hex.col * xOffset;
+                    const topPos = hex.row * yOffset + (isEvenCol ? hexHeight / 2 : 0);
 
-                // คำนวณพิกัดแกน X (แนวนอน)
-                const leftPos = hex.col * xOffset;
+                    const placedInfo = placedUnitMap[hex.id];
+                    const character: CharacterData | null = placedInfo
+                        ? { imgSrc: UNIT_SPRITE_MAP[placedInfo.unitId] || '' }
+                        : null;
+                    const unitPlayerId: 1 | 2 | null = placedInfo?.playerId ?? null;
 
-                // คำนวณพิกัดแกน Y (แนวตั้ง)
-                const topPos = hex.row * yOffset + (isEvenCol ? hexHeight / 2 : 0);
+                    const isValidPlacement = !!selectedUnit && validCellSet.has(hex.id) && !placedInfo;
+                    const isBuyableCell = buyableCellSet.has(hex.id);
+                    const isGhostPreview = isValidPlacement && hoveredCell === hex.id;
+                    const ghostImgSrc = selectedUnit ? (UNIT_SPRITE_MAP[selectedUnit] || null) : null;
 
-                // ตรวจสอบว่าช่องนี้มียูนิตวางอยู่หรือไม่
-                const placedInfo = placedUnitMap[hex.id];
-                const character: CharacterData | null = placedInfo
-                    ? { imgSrc: UNIT_SPRITE_MAP[placedInfo.unitId] || '' }
-                    : null;
-                const unitPlayerId: 1 | 2 | null = placedInfo?.playerId ?? null;
+                    // Determine actual owner color: API data takes precedence over mockData
+                    let displayOwner = hex.owner;
+                    if (p1Set.has(hex.id)) displayOwner = 'blue';
+                    else if (p2Set.has(hex.id)) displayOwner = 'red';
 
-                // ตรวจสอบว่าช่องนี้เป็น valid placement
-                const isValidPlacement = !!selectedUnit && validCellSet.has(hex.id) && !placedInfo;
+                    const cursorClass = (isValidPlacement || isBuyableCell) ? 'cursor-pointer' : 'cursor-default';
 
-                // ตรวจสอบว่าช่องนี้ซื้อได้หรือไม่
-                const isBuyableCell = buyableCellSet.has(hex.id);
+                    // Backend coordinates calculation (1-indexed)
+                    const backendCol = hex.col + 1;
+                    const backendRow = hex.row + 1;
+                    const debugTooltip = `Backend: (R: ${backendRow}, C: ${backendCol})\nFrontend: (R: ${hex.row}, C: ${hex.col})`;
 
-                // Ghost preview เมื่อ hover บนช่องที่วางได้
-                const isGhostPreview = isValidPlacement && hoveredCell === hex.id;
-                const ghostImgSrc = selectedUnit ? (UNIT_SPRITE_MAP[selectedUnit] || null) : null;
-
-                // Cursor style
-                const cursorClass = (isValidPlacement || isBuyableCell) ? 'cursor-pointer' : 'cursor-default';
-
-                return (
-                    <div
-                        key={hex.id}
-                        className={`absolute ${cursorClass}`}
-                        style={{ left: `${leftPos}px`, top: `${topPos}px` }}
-                        onClick={() => onCellClick?.(hex.id)}
-                        onMouseEnter={() => onCellMouseEnter?.(hex.id)}
-                        onMouseLeave={() => onCellMouseLeave?.()}
-                    >
-                        <HexPiece
-                            owner={hex.owner}
-                            character={character}
-                            unitPlayerId={unitPlayerId}
-                            isValidPlacement={isValidPlacement}
-                            isBuyableCell={isBuyableCell}
-                            isGhostPreview={isGhostPreview}
-                            ghostImgSrc={ghostImgSrc}
-                        />
-                    </div>
-                );
-            })}
+                    return (
+                        <div
+                            key={hex.id}
+                            className={`absolute ${cursorClass}`}
+                            style={{ left: `${leftPos}px`, top: `${topPos}px` }}
+                            onClick={() => onCellClick?.(hex.id)}
+                            onMouseEnter={() => onCellMouseEnter?.(hex.id)}
+                            onMouseLeave={() => onCellMouseLeave?.()}
+                            title={debugTooltip}
+                        >
+                            <HexPiece
+                                owner={displayOwner}
+                                character={character}
+                                unitPlayerId={unitPlayerId}
+                                isValidPlacement={isValidPlacement}
+                                isBuyableCell={isBuyableCell}
+                                isGhostPreview={isGhostPreview}
+                                ghostImgSrc={ghostImgSrc}
+                            />
+                        </div>
+                    );
+                })
+            )}
         </div>
     );
 };

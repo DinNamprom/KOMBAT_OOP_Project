@@ -73,6 +73,7 @@ public class turn {
                     p.updateVariable();
                     m.setVariable();
                     m.setVariable(p.getGolbVariables());
+                    m.clearActions();
                     m.action();
                     m.check_variable(p.getGolbVariables());
                 }catch (Exception e) {
@@ -92,6 +93,7 @@ public class turn {
         Iterator<minion> it = p.getMinions().iterator();
         while (it.hasNext()) {
             minion m = it.next();
+            //เก็บข้อมูล minionstatus ใส่ใน list ตรงนี้
             if (m.isDead()) {
                 if (m.getGrid() != null) {
                     m.getGrid().removeMinion();

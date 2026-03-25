@@ -46,7 +46,7 @@ public class ActionController {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return false;
 
-        boolean isGameOver = stage.executeTurnEnding();
+        boolean isGameOver = stage.executeTurnEnding(playerID);
 
         return isGameOver;
     }

@@ -30,6 +30,10 @@ public class minion {
     @Setter
     private boolean inverse = false;
 
+    public void clearActions() {
+        actions.clear();
+    }
+
     public minion(minion_kind kind, strategist owner, long initHp, int start_row, int start_col) throws Exception {
         this.kind = kind;
         this.owner = owner;
@@ -58,12 +62,15 @@ public class minion {
         if(grid != null) {
             Grid target = grid.getGrid(inverse? Inverse_dir(dir):dir);
             if(target == null || target.haveMinion()) return false;
-            grid.removeMinion();
-            grid = target;
+            Action action = new Action(row,col,false, null, -1, 0);
+            actions.add(action);
             target.addMinion(this);
             this.row = target.getRow();
             this.col = target.getCol();
-
+            grid.removeMinion();
+            grid = target;
+            action = new Action(row,col,false, null, -1, 0);
+            actions.add(action);
             return true;
         }
         return false;
@@ -153,13 +160,14 @@ public class minion {
                 long def = target.getKind().defenseFactor();
                 long r_dmg = Math.max(0, dmg-def);
                 target.receive_dmg(r_dmg);
-                Action action = new Action(row,col,true,target.getOwner().getUUID(),target.getNo());
+                System.out.println("-> [ENEMY INFO] remaining hp: " + target.getHp());
+                Action action = new Action(row,col,true,target.getOwner().getUUID(),target.getNo(), dmg);
                 actions.add(action);
                 return;
             }
             cur = cur.getGrid(actual_dir);
         }
-        Action action = new Action(row, col, true, null, -1);
+        Action action = new Action(row, col, true, null, -1, dmg);
         actions.add(action);
     }
 

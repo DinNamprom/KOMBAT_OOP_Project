@@ -62,6 +62,7 @@ const MainGame = () => {
     const [player2Grids, setPlayer2Grids] = useState<string[]>([]);
     const [spawnableCells, setSpawnableCells] = useState<string[]>([]);
     const [isProcessingActions, setIsProcessingActions] = useState(false);
+    const [actionMessage, setActionMessage] = useState<string>("");
 
     // --- Spawn Counts (for assigning 'no') ---
     const [p1SpawnCount, setP1SpawnCount] = useState(0);
@@ -200,9 +201,12 @@ const MainGame = () => {
                 for (const action of actions) {
                     // Backend: { row, col, isAtk, target_owner, target_no }
                     const isAttack = action.atk !== undefined ? action.atk : (action as any).isAtk;
+                    const attackerName = owner_uuid === player1ID ? "Player 1" : "Player 2";
+
                     if (!isAttack) {
                         const newCellId = `${action.row - 1}-${action.col - 1}`;
-                        
+                        setActionMessage(`${attackerName}'s Minion #${no} is moving...`);
+
                         setPlacedUnits(prev => {
                             const unit = prev.find(u => {
                                 const unitOwnerID = u.playerId === 1 ? player1ID : player2ID;
@@ -225,11 +229,19 @@ const MainGame = () => {
                         });
                     } else {
                         console.log(`   -> ATK Minion #${no}: attacked at [${action.row}, ${action.col}] dmg ${action.dmg} target`);
-                        console.log(action.target_owner != null ? `#${action.target_no}`:"miss");
-                        alert(`-> ATK Minion #${no}: ATTACK ${action.dmg} Damage ${action.target_owner != null ? `hit #${action.target_no} owner ${action.target_owner}` : "miss"}`);
+                        
+                        if (action.target_owner) {
+                            const targetName = action.target_owner === player1ID ? "Player 1" : "Player 2";
+                            const msg = `${attackerName}'s Minion #${no} HIT ${targetName}'s Minion #${action.target_no} for ${action.dmg} damage!`;
+                            setActionMessage(msg);
+                            console.log(`Hit: #${action.target_no} owner ${action.target_owner}`);
+                        } else {
+                            setActionMessage(`${attackerName}'s Minion #${no} attacked, but MISSED!`);
+                            console.log("Miss");
+                        }
                     }
-                    // Delay 1 second between actions
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                    // Delay to let player read message
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                 }
                 console.log(`[ACTION] Finished actions for Minion #${no}`);
                 // Extra delay 0.5s between different minions
@@ -237,6 +249,7 @@ const MainGame = () => {
             }
         } finally {
             setIsProcessingActions(false);
+            setActionMessage("");
             console.log("[ACTION] All player actions processed.");
         }
     }, [player1ID, player2ID]);
@@ -495,9 +508,19 @@ const MainGame = () => {
         >
             {/* Action Processing Overlay: blocks all pointer events */}
             {isProcessingActions && (
-                <div className="absolute inset-0 z-[9999] cursor-wait bg-black/10 flex items-center justify-center">
-                    <div className="bg-black/60 text-white px-6 py-3 rounded-xl font-handjet text-2xl animate-pulse border border-white/20">
-                        EXECUTING STRATEGIES...
+                <div className="absolute inset-0 z-[9999] cursor-wait bg-black/20 flex items-center justify-center">
+                    <div className="bg-black/60 text-white font-bold text-3xl px-10 py-8 font-handjet border-2 border-white/30 flex flex-col items-center gap-4  max-w-[70%] shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+                        <div className="text-2xl opacity-80 tracking-[0.2em] uppercase">
+                            Executing Strategies...
+                        </div>
+                        {actionMessage && (
+                            <>
+                                <div className="w-full h-px" />
+                                <div className="text-xl opacity-80 text-center leading-tight">
+                                    {actionMessage}
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

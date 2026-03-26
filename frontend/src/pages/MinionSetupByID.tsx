@@ -29,14 +29,17 @@ const characterDB: Record<string, any> = {
         name: 'ZAKU',
         img: char2Img,
         stats: {hp: 120, def: 15, spawnCost: 150 },
-        defaultStrategy: `# Zaku II default strategy\nmove forward`
+        defaultStrategy: `# Zaku II default strategy\nmove up`
     },
     'char3': {
         id: 'char3',
         name: 'Gundam',
         img: char3Img,
         stats: {hp: 120, def: 15, spawnCost: 150 },
-        defaultStrategy: `# Gundam default strategy\nmove forward`
+        defaultStrategy: `# Gundam default strategy
+        if (ally - 10) then {move upleft} else move up
+        if (opponent - 20) then shoot upright 15 else done
+        `
     },
     'char4': {
         id: 'char4',
@@ -50,7 +53,63 @@ const characterDB: Record<string, any> = {
         name: 'Zeong',
         img: char5Img,
         stats: {hp: 120, def: 15, spawnCost: 150 },
-        defaultStrategy: `# Zeong default strategy \nmove forward`
+        defaultStrategy: `t = t + 1  # keeping track of the turn number\n
+                                                                 m = 0  # number of random moves this turn\n
+                                                                 while (3 - m) {  # made less than 3 random moves\n
+                                                                 if (Budget - 100) then {} else done  # too poor to do anything else\n
+                                                                 opponentLoc = opponent\n
+                                                                 if (opponentLoc / 10 - 1)\n
+                                                                 then  # opponent afar\n
+                                                                 if (opponentLoc % 10 - 5) then move downleft\n
+                                                                 else if (opponentLoc % 10 - 4) then move up\n
+                                                                 else if (opponentLoc % 10 - 3) then move upright\n
+                                                                 else if (opponentLoc % 10 - 2) then move upright\n
+                                                                 else if (opponentLoc % 10 - 1) then move upright\n
+                                                                 else move up\n
+                                                                 else if (opponentLoc)\n
+                                                                 then  # opponent adjacent to this minion\n
+                                                                 if (opponentLoc % 10 - 5) then {\n
+                                                                 cost = 10 ^ (nearby upleft % 100 + 1)\n
+                                                                 if (Budget - cost) then shoot upleft cost else {}\n
+                                                                 }\n
+                                                                 else if (opponentLoc % 10 - 4) then {\n
+                                                                 cost = 10 ^ (nearby downleft % 100 + 1)\n
+                                                                 if (Budget - cost) then shoot downleft cost else {}\n
+                                                                 }\n
+                                                                 else if (opponentLoc % 10 - 3) then {\n
+                                                                 cost = 10 ^ (nearby down % 100 + 1)\n
+                                                                 if (Budget - cost) then shoot down cost else {}\n
+                                                                 }\n
+                                                                 else if (opponentLoc % 10 - 2) then {\n
+                                                                 cost = 10 ^ (nearby downright % 100 + 1)\n
+                                                                 if (Budget - cost) then shoot downright cost else {}\n
+                                                                 }\n
+                                                                 else if (opponentLoc % 10 - 1) then {\n
+                                                                 cost = 10 ^ (nearby upright % 100 + 1)\n
+                                                                 if (Budget - cost) then shoot upright cost else {}\n
+                                                                 }\n
+                                                                 else {\n
+                                                                 cost = 10 ^ (nearby up % 100 + 1)\n
+                                                                 if (Budget - cost) then shoot up cost else {}\n
+                                                                 }\n
+                                                                 else {  # no visible opponent; move in a random direction\n
+                                                                 try = 0  # keep track of number of attempts\n
+                                                                 while (3 - try) {  # no more than 3 attempts\n
+                                                                 success = 1\n
+                                                                 dir = random % 6\n
+                                                                 # (nearby <dir> % 10 + 1) ^ 2 is positive if adjacent cell in <dir> has no ally\n
+                                                                 if ((dir - 4) * (nearby upleft % 10 + 1) ^ 2) then move upleft\n
+                                                                 else if ((dir - 3) * (nearby downleft % 10 + 1) ^ 2) then move downleft\n
+                                                                 else if ((dir - 2) * (nearby down % 10 + 1) ^ 2) then move down\n
+                                                                 else if ((dir - 1) * (nearby downright % 10 + 1) ^ 2) then move downright\n
+                                                                 else if (dir * (nearby upright % 10 + 1) ^ 2) then move upright\n
+                                                                 else if ((nearby up % 10 + 1) ^ 2) then move up\n
+                                                                 else success = 0\n
+                                                                 if (success) then try = 3 else try = try + 1\n
+                                                                 }\n
+                                                                 m = m + 1\n
+                                                                 }\n
+                                                                 }  # end while\n`
     }
 };
 

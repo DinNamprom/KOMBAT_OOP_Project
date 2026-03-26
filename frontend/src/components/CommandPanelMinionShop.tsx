@@ -35,6 +35,14 @@ const INITIAL_UNITS: UnitOption[] = [
     { id: 'zeong',    name: 'Zeong',     imageSrc: shopZeong },
 ];
 
+const idToCharId: Record<string, string> = {
+    'gm': 'char1',
+    'zaku': 'char2',
+    'gundam': 'char3',
+    'redcomet': 'char4',
+    'zeong': 'char5'
+};
+
 const CommandPanelMinionShop = ({
     currentPlayer,
     currentTurn,
@@ -52,6 +60,9 @@ const CommandPanelMinionShop = ({
         setSpawnCost(configService.loadConfig().spawn_cost);
     }, []);
 
+    const configuredMinions = JSON.parse(localStorage.getItem('configuredMinions') || '{}');
+    const availableUnits = INITIAL_UNITS.filter(unit => !!configuredMinions[idToCharId[unit.id]]);
+
     return (
         <BaseCommandPanel
             currentPlayer={currentPlayer}
@@ -61,11 +72,10 @@ const CommandPanelMinionShop = ({
             currentUnits={currentUnits}
             maxUnits={maxUnits}
         >
-            {/* Unit Selection Grid - แสดง 5 ตัวละครแบบ 3+2 */}
+            {/* Unit Selection Grid */}
             <div className="w-[90%] flex flex-col items-center gap-[6%] pt-[4%]">
-                {/* แถวบน: 3 ตัวละคร */}
-                <div className="flex items-center justify-center gap-[3%] w-full">
-                    {INITIAL_UNITS.slice(0, 3).map((unit) => (
+                <div className="flex flex-wrap items-center justify-center gap-[3%] w-full">
+                    {availableUnits.map((unit) => (
                         <ShopUnitButton
                             key={unit.id}
                             unitId={unit.id}
@@ -73,21 +83,6 @@ const CommandPanelMinionShop = ({
                             imageSrc={unit.imageSrc}
                             cost={spawnCost}
                             widthClass="w-[28%]"
-                            onClick={onSelectUnit}
-                        />
-                    ))}
-                </div>
-
-                {/* แถวล่าง: 2 ตัวละคร */}
-                <div className="flex items-center justify-center gap-[3%] w-[68%]">
-                    {INITIAL_UNITS.slice(3, 5).map((unit) => (
-                        <ShopUnitButton
-                            key={unit.id}
-                            unitId={unit.id}
-                            unitName={unit.name}
-                            imageSrc={unit.imageSrc}
-                            cost={spawnCost}
-                            widthClass="w-[44%]"
                             onClick={onSelectUnit}
                         />
                     ))}

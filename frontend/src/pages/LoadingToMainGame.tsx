@@ -61,13 +61,15 @@ const LoadingToMainGame = () => {
                     'char5': { name: 'Zeong', hp: 120, def: 15, spawnCost: 150, strategy: "move forward" }
                 };
 
-                for (const charId of ['char1', 'char2', 'char3', 'char4', 'char5']) {
+                const charIds = Object.keys(configuredMinions);
+
+                for (const charId of charIds) {
                     const minionData = configuredMinions[charId];
-                    const name = minionData?.customName || defaultDB[charId].name;
-                    const hp = minionData?.stats?.hp || defaultDB[charId].hp;
-                    const spawncost = minionData?.stats?.spawnCost || defaultDB[charId].spawnCost;
-                    const def = minionData?.stats?.def || defaultDB[charId].def;
-                    const strategy = minionData?.strategyCode || defaultDB[charId].strategy;
+                    const name = minionData?.customName || (defaultDB[charId] ? defaultDB[charId].name : "Unknown Minion");
+                    const hp = minionData?.stats?.hp || (defaultDB[charId] ? defaultDB[charId].hp : 100);
+                    const spawncost = minionData?.stats?.spawnCost || (defaultDB[charId] ? defaultDB[charId].spawnCost : 100);
+                    const def = minionData?.stats?.def || (defaultDB[charId] ? defaultDB[charId].def : 10);
+                    const strategy = minionData?.strategyCode || (defaultDB[charId] ? defaultDB[charId].strategy : "move forward");
 
                     await api.createMinionKind(gameID, {
                         name,

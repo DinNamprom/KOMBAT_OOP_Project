@@ -1,55 +1,103 @@
-// import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import bgImage from '../assets/bg.svg';
 import Title from "../components/Title.tsx";
-import {useEffect} from "react";
+import { useEffect } from "react";
+import { api } from "../services/api";
+import { v4 as uuidv4 } from 'uuid';
 
 const LoadingToMainGame = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const initializeGame = async () => {
+            const gameID = localStorage.getItem('gameID');
+            if (!gameID) {
+                console.error("No gameID found in localStorage");
+                navigate('/');
+                return;
+            }
 
-            const minimumTimer = new Promise((resolve) => setTimeout(resolve, 500));
+            try {
+                const mode = localStorage.getItem('mode') || 'SOLITAIRE';
+                const myId: string = uuidv4();
+                const myId2: string = uuidv4();
 
-            Promise.all([minimumTimer]).then(() => {
-                navigate('/MainGame');
+                let p1Status = 'player';
+                let p2Status = 'bot';
 
-            });
+                if (mode === 'SOLITAIRE') {
+                    p1Status = 'player';
+                    p2Status = 'bot';
+                } else if (mode === 'DUEL') {
+                    p1Status = 'player';
+                    p2Status = 'player';
+                } else if (mode === 'AUTO') {
+                    p1Status = 'bot';
+                    p2Status = 'bot';
+                }
+
+                localStorage.setItem('Player1', JSON.stringify({ id: myId, type: p1Status }));
+                localStorage.setItem('Player2', JSON.stringify({ id: myId2, type: p2Status }));
+
+                // 1. Join Players
+                await api.joinPlayer(gameID, myId);
+                await api.joinPlayer(gameID, myId2);
+                console.log(myId, "1 Join Success as", p1Status);
+                console.log(myId2, "2 Join Success as", p2Status);
+
+                // For other modes, backend start_game_setup will fill with bots
+                // But for DUEL we might need to join Player 2 explicitly if we want human vs human
+                // For now, let's just join Player 1 and let backend handle the rest based on mode
+                
+                // 2. Create Minion Kinds
+                const configuredMinions = JSON.parse(localStorage.getItem('configuredMinions') || '{}');
+                
+                // Default DB to fallback if not configured
+                const defaultDB: Record<string, any> = {
+                    'char1': { name: 'RGM-79 GM', hp: 100, def: 10, spawnCost: 100, strategy: "move down" },
+                    'char2': { name: 'ZAKU', hp: 120, def: 15, spawnCost: 150, strategy: "move forward" },
+                    'char3': { name: 'Gundam', hp: 120, def: 15, spawnCost: 150, strategy: "move forward" },
+                    'char4': { name: 'Red Comet', hp: 120, def: 15, spawnCost: 150, strategy: "move forward" },
+                    'char5': { name: 'Zeong', hp: 120, def: 15, spawnCost: 150, strategy: "move forward" }
+                };
+
+                for (const charId of ['char1', 'char2', 'char3', 'char4', 'char5']) {
+                    const minionData = configuredMinions[charId];
+                    const name = minionData?.customName || defaultDB[charId].name;
+                    const hp = minionData?.stats?.hp || defaultDB[charId].hp;
+                    const spawncost = minionData?.stats?.spawnCost || defaultDB[charId].spawnCost;
+                    const def = minionData?.stats?.def || defaultDB[charId].def;
+                    const strategy = minionData?.strategyCode || defaultDB[charId].strategy;
+
+                    await api.createMinionKind(gameID, {
+                        name,
+                        hp,
+                        spawncost,
+                        def,
+                        strategy
+                    });
+                    console.log("Minion registered:", name);
+                }
+
+                // 3. Start Game
+                const started = await api.startGame(gameID);
+                if (started) {
+                    console.log("Game started successfully");
+                    navigate('/MainGame');
+                } else {
+                    console.error("Failed to start game");
+                    alert("Failed to start game. Check if all players joined.");
+                    navigate('/setup');
+                }
+                } catch (error) {
+                console.error("Error initializing game:", error);
+                alert("Error connecting to backend.");
+                navigate('/');
+            }
+        };
+
+        initializeGame();
     }, [navigate]);
-
-    // useEffect(() => {
-    //     // รายชื่อรูปภาพทั้งหมดที่ต้องโหลด
-    //     const imagesToPreload = [bgImage, solitaireBanner, duelBanner, autoBanner];
-    //
-    //     // ฟังก์ชันสำหรับจำลองการโหลดรูปเข้า Browser Cache
-    //     const preloadImages = (urls: string[]) => {
-    //         return Promise.all(
-    //             urls.map((url) => {
-    //                 return new Promise((resolve) => {
-    //                     const img = new Image();
-    //                     img.src = url;
-    //                     // ไม่ว่าจะโหลดสำเร็จหรือพัง ก็ให้ resolve เพื่อไม่ให้แอปค้าง
-    //                     img.onload = resolve;
-    //                     img.onerror = resolve;
-    //                 });
-    //             })
-    //         );
-    //     };
-    //
-    //     // สร้าง Promise 2 ตัว:
-    //     // 1. ตัวนับเวลา 2 วินาที
-    //     const minimumTimer = new Promise((resolve) => setTimeout(resolve, 500));
-    //
-    //     // 2. ตัวโหลดรูปภาพ
-    //     const imageLoading = preloadImages(imagesToPreload);
-    //
-    //     // รอให้ "ทั้งสองอย่าง" ทำงานเสร็จ ค่อยเปลี่ยนหน้า
-    //     Promise.all([minimumTimer, imageLoading]).then(() => {
-    //         navigate('/MainGame');
-    //     });
-    //
-    // }, [navigate]);
 
     return (
         <div
@@ -61,7 +109,7 @@ const LoadingToMainGame = () => {
                 backgroundRepeat: 'no-repeat'
             }}
         >
-            <Title text="Loading" textSize="text-8xl" isUppercase={false}/>
+            <Title text="Initializing Game" textSize="text-8xl" isUppercase={false}/>
         </div>
     );
 };

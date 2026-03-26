@@ -5,16 +5,31 @@ import solitaireBanner from '../assets/Banner/solitaire.svg';
 import duelBanner from '../assets/Banner/duel.svg';
 import autoBanner from '../assets/Banner/auto.svg';
 import BackButton from "../components/BackButton.tsx";
+import { api } from "../services/api";
 
 const ModeSelect = () => {
     const navigate = useNavigate();
 
     // ข้อมูลจำลองสำหรับวนลูปสร้าง Banner เพื่อให้โค้ดคลีนขึ้น
     const modes = [
-        { id: 'solitaire', name: 'Solitaire', img: solitaireBanner, path: '/setup' },
-        { id: 'duel', name: 'Duel', img: duelBanner, path: '/setup' },
-        { id: 'auto', name: 'Auto', img: autoBanner, path: '/setup' },
+        { id: 'SOLITAIRE', name: 'Solitaire', img: solitaireBanner, path: '/setup' },
+        { id: 'DUEL', name: 'Duel', img: duelBanner, path: '/setup' },
+        { id: 'AUTO', name: 'Auto', img: autoBanner, path: '/setup' },
     ];
+
+    const handleModeSelect = async (modeId: string, path: string) => {
+        const config = localStorage.getItem('gameConfig') || "";
+        try {
+            const gameID = await api.createGame({ mode: modeId, config });
+            localStorage.setItem('gameID', gameID);
+            localStorage.setItem('mode', modeId);
+            console.log("Game created with ID:", gameID);
+            navigate(path);
+        } catch (error) {
+            console.error("Failed to create game:", error);
+            alert("Error creating game. Make sure the backend is running.");
+        }
+    };
 
     return (
         <div
@@ -34,7 +49,7 @@ const ModeSelect = () => {
                 {modes.map((mode) => (
                     <div
                         key={mode.id}
-                        onClick={() => navigate(mode.path)}
+                        onClick={() => handleModeSelect(mode.id, mode.path)}
                         className="group relative cursor-pointer hover:-translate-y-4 hover:scale-105 transition-all duration-300"
                     >
                         {/* กรอบ Banner และ รูปภาพ */}

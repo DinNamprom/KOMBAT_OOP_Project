@@ -1,0 +1,36 @@
+package com.example.WebAPI.Parser.AST.Expression;
+
+import com.example.WebAPI.Minion.minion;
+
+import java.util.Map;
+
+public record Variable(String name) implements Expr {
+    @Override
+    public Long eval(minion minion) {
+        if (minion.getVariable().containsKey(name)) {
+            return minion.getVariable().get(name);
+        }
+        if (name.equals("Budget")) {
+            return minion.getOwner().getBudget();
+        }
+        System.out.println("-> [Warning] Variable " + name + " hasn't assign yet!");
+        return 0L;
+    }
+
+    @Override
+    public Long eval(Map<String, Long> Val) {
+        if (Val.containsKey(name)) {
+            return Val.get(name);
+        }
+        if (name.equals("Budget")) {
+            return 0L;
+        }
+        System.out.println("-> [Warning] Variable " + name + " hasn't assign yet!");
+        return 0L;
+    }
+
+    @Override
+    public void prettyPrint(StringBuilder sb) {
+        sb.append(name);
+    }
+}

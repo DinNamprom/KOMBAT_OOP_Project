@@ -23,11 +23,11 @@ interface InitialCommandPanelProps {
 
 // รายการยูนิตเริ่มต้นที่สามารถเลือกได้ (ฟรี, ราคา 0)
 const INITIAL_UNITS: UnitOption[] = [
-    { id: 'char1', name: 'GM',        imageSrc: initialGM },
-    { id: 'char2', name: 'Zaku',      imageSrc: initialZaku },
-    { id: 'char3', name: 'Gundam',    imageSrc: initialGundam },
-    { id: 'char4', name: 'Red Comet', imageSrc: initialRedComet },
-    { id: 'char5', name: 'Zeong',     imageSrc: initialZeong },
+    {id: 'char1', name: 'GM', imageSrc: initialGM},
+    {id: 'char2', name: 'Zaku', imageSrc: initialZaku},
+    {id: 'char3', name: 'Gundam', imageSrc: initialGundam},
+    {id: 'char4', name: 'Red Comet', imageSrc: initialRedComet},
+    {id: 'char5', name: 'Zeong', imageSrc: initialZeong},
 ];
 
 const InitialCommandPanel = ({

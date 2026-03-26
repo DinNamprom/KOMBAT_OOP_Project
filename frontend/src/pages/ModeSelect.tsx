@@ -1,26 +1,26 @@
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import bgImage from '../assets/bg.svg';
 
 import solitaireBanner from '../assets/Banner/solitaire.svg';
 import duelBanner from '../assets/Banner/duel.svg';
 import autoBanner from '../assets/Banner/auto.svg';
 import BackButton from "../components/BackButton.tsx";
-import { api } from "../services/api";
+import {api} from "../services/api";
 
 const ModeSelect = () => {
     const navigate = useNavigate();
 
     // ข้อมูลจำลองสำหรับวนลูปสร้าง Banner เพื่อให้โค้ดคลีนขึ้น
     const modes = [
-        { id: 'SOLITAIRE', name: 'Solitaire', img: solitaireBanner, path: '/setup' },
-        { id: 'DUEL', name: 'Duel', img: duelBanner, path: '/setup' },
-        { id: 'AUTO', name: 'Auto', img: autoBanner, path: '/setup' },
+        {id: 'SOLITAIRE', name: 'Solitaire', img: solitaireBanner, path: '/setup'},
+        {id: 'DUEL', name: 'Duel', img: duelBanner, path: '/setup'},
+        {id: 'AUTO', name: 'Auto', img: autoBanner, path: '/setup'},
     ];
 
     const handleModeSelect = async (modeId: string, path: string) => {
         const config = localStorage.getItem('gameConfig') || "";
         try {
-            const gameID = await api.createGame({ mode: modeId, config });
+            const gameID = await api.createGame({mode: modeId, config});
             localStorage.setItem('gameID', gameID);
             localStorage.setItem('mode', modeId);
             console.log("Game created with ID:", gameID);

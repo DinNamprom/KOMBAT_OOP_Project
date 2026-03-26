@@ -8,7 +8,7 @@ interface StrategyTextBoxProps {
     onChange: (newValue: string) => void;
 }
 
-const StrategyTextBox = ({ value, onChange }: StrategyTextBoxProps) => {
+const StrategyTextBox = ({value, onChange}: StrategyTextBoxProps) => {
     return (
         <div className="flex flex-col items-center gap-2 w-full">
             {/* กรอบสี่เหลี่ยมด้านนอก */}

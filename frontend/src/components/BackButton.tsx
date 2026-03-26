@@ -4,8 +4,8 @@ interface BackButton {
     onClick?: () => void;
 }
 
-const BackButton = ({ onClick }: BackButton) => {
-    return(
+const BackButton = ({onClick}: BackButton) => {
+    return (
         <button
             onClick={(onClick)}
             className="absolute top-8 left-8 bg-transparent border-none p-0 cursor-pointer transition-transform hover:scale-105 active:scale-95"

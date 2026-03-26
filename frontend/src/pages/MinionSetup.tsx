@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useState, useEffect} from 'react';
+import {useNavigate} from 'react-router-dom';
 import bgImage from '../assets/bg.svg';
 import BackButton from '../components/BackButton';
 
@@ -21,8 +21,6 @@ import redcometColor from '../assets/RedComet/RedComet_FinishedStrategy.svg';
 import zeongColor from '../assets/Zeong/Zeong_FinishedStrategy.svg';
 
 
-
-
 import closeIcon from '../assets/Cancel.svg';
 import CyberButton from "../components/CyberButton.tsx";
 import Title from "../components/Title.tsx";
@@ -41,7 +39,7 @@ const MinionSetup = () => {
 
     // ฟังก์ชันลบการตั้งค่า
     const handleRemoveConfig = (charId: string) => {
-        const newData = { ...configuredMinions };
+        const newData = {...configuredMinions};
         delete newData[charId];
         setConfiguredMinions(newData);
         localStorage.setItem('configuredMinions', JSON.stringify(newData));
@@ -49,11 +47,46 @@ const MinionSetup = () => {
 
     // อัปเดต Array เพิ่ม property 'name' และ 'colorImg'
     const characters = [
-        { id: 'char1', name: 'RGM-79 GM', normalImg: gmWhiteAura, hoverImg: gmYellowAura, colorImg: gmColor, nextPath: '/setup/char1' },
-        { id: 'char2', name: 'Zaku', normalImg: zakuWhiteAura, hoverImg: zakuYellowAura, colorImg: zakuColor, nextPath: '/setup/char2' },
-        { id: 'char3', name: 'Gundam', normalImg: gundamWhiteAura, hoverImg: gundamYellowAura, colorImg: gundamColor, nextPath: '/setup/char3' },
-        { id: 'char4', name: 'Red Comet', normalImg: redcometWhiteAura, hoverImg: redcometYellowAura, colorImg: redcometColor, nextPath: '/setup/char4' },
-        { id: 'char5', name: 'Zeong', normalImg: zeongWhiteAura, hoverImg: zeongYellowAura, colorImg: zeongColor, nextPath: '/setup/char5' },
+        {
+            id: 'char1',
+            name: 'RGM-79 GM',
+            normalImg: gmWhiteAura,
+            hoverImg: gmYellowAura,
+            colorImg: gmColor,
+            nextPath: '/setup/char1'
+        },
+        {
+            id: 'char2',
+            name: 'Zaku',
+            normalImg: zakuWhiteAura,
+            hoverImg: zakuYellowAura,
+            colorImg: zakuColor,
+            nextPath: '/setup/char2'
+        },
+        {
+            id: 'char3',
+            name: 'Gundam',
+            normalImg: gundamWhiteAura,
+            hoverImg: gundamYellowAura,
+            colorImg: gundamColor,
+            nextPath: '/setup/char3'
+        },
+        {
+            id: 'char4',
+            name: 'Red Comet',
+            normalImg: redcometWhiteAura,
+            hoverImg: redcometYellowAura,
+            colorImg: redcometColor,
+            nextPath: '/setup/char4'
+        },
+        {
+            id: 'char5',
+            name: 'Zeong',
+            normalImg: zeongWhiteAura,
+            hoverImg: zeongYellowAura,
+            colorImg: zeongColor,
+            nextPath: '/setup/char5'
+        },
     ];
 
     // เช็คว่ามีการตั้งค่า Minion อย่างน้อย 1 ตัวหรือไม่
@@ -69,7 +102,7 @@ const MinionSetup = () => {
                 backgroundRepeat: 'no-repeat'
             }}
         >
-            <BackButton onClick={() => navigate("/loadingMode")} />
+            <BackButton onClick={() => navigate("/loadingMode")}/>
 
             <div className="flex flex-row items-center justify-center gap-3 px-4 z-10">
 
@@ -131,7 +164,7 @@ const MinionSetup = () => {
                                 />
                             )}
                         </div>
-                );
+                    );
                 })}
 
             </div>

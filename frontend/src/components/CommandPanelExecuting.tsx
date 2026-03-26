@@ -1,7 +1,7 @@
 import commandPanelExecuting from '../assets/CommandPanelLoading.svg';
 import player1TurnImg from '../assets/Player1Turn.svg';
 import player2TurnImg from '../assets/Player2Turn.svg';
-import { ReactNode } from 'react';
+import {ReactNode} from 'react';
 
 
 const BaseCommandPanel = () => {

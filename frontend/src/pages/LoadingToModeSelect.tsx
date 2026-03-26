@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useEffect} from 'react';
+import {useNavigate} from 'react-router-dom';
 
 import bgImage from '../assets/bg.svg';
 import solitaireBanner from '../assets/Banner/solitaire.svg';

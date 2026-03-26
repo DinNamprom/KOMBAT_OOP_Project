@@ -5,7 +5,7 @@ import CyberButton from '../components/CyberButton';
 import bgImage from '../assets/bg.svg';
 import configFrameImage from '../assets/config-frame.svg';
 import BackButton from "../components/BackButton.tsx";
-import { configService, type GameConfig } from '../services/configService';
+import {configService, type GameConfig} from '../services/configService';
 
 
 const ConfigPage = () => {

@@ -4,10 +4,10 @@ import shopZaku from '../assets/Zaku/shopZaku.svg';
 import shopGundam from '../assets/Gundam/shopGundam.svg';
 import shopRedComet from '../assets/RedComet/shopRedComet.svg';
 import shopZeong from '../assets/Zeong/shopZeong.svg';
-import { useState, useEffect } from 'react';
+import {useState, useEffect} from 'react';
 import ShopUnitButton from './ShopUnitButton';
 import BaseCommandPanel from './BaseCommandPanel';
-import { configService } from '../services/configService';
+import {configService} from '../services/configService';
 
 interface UnitOption {
     id: string;
@@ -28,11 +28,11 @@ interface CommandPanelMinionShopProps {
 
 // รายการยูนิตเริ่มต้นที่สามารถเลือกได้
 const INITIAL_UNITS: UnitOption[] = [
-    { id: 'gm',       name: 'GM',        imageSrc: shopGM },
-    { id: 'zaku',     name: 'Zaku',      imageSrc: shopZaku },
-    { id: 'gundam',   name: 'Gundam',    imageSrc: shopGundam },
-    { id: 'redcomet', name: 'Red Comet', imageSrc: shopRedComet },
-    { id: 'zeong',    name: 'Zeong',     imageSrc: shopZeong },
+    {id: 'gm', name: 'GM', imageSrc: shopGM},
+    {id: 'zaku', name: 'Zaku', imageSrc: shopZaku},
+    {id: 'gundam', name: 'Gundam', imageSrc: shopGundam},
+    {id: 'redcomet', name: 'Red Comet', imageSrc: shopRedComet},
+    {id: 'zeong', name: 'Zeong', imageSrc: shopZeong},
 ];
 
 const idToCharId: Record<string, string> = {
@@ -44,15 +44,15 @@ const idToCharId: Record<string, string> = {
 };
 
 const CommandPanelMinionShop = ({
-    currentPlayer,
-    currentTurn,
-    maxTurn,
-    goldAmount,
-    currentUnits,
-    maxUnits,
-    onSelectUnit,
-    onExecute,
-}: CommandPanelMinionShopProps) => {
+                                    currentPlayer,
+                                    currentTurn,
+                                    maxTurn,
+                                    goldAmount,
+                                    currentUnits,
+                                    maxUnits,
+                                    onSelectUnit,
+                                    onExecute,
+                                }: CommandPanelMinionShopProps) => {
     // ดึงค่า spawn_cost จากเกม Config
     const [spawnCost, setSpawnCost] = useState<number>(configService.loadConfig().spawn_cost);
 
@@ -93,7 +93,7 @@ const CommandPanelMinionShop = ({
             {onExecute && (
                 <div
                     className="absolute"
-                    style={{ right: '1%', top: '110%'}}
+                    style={{right: '1%', top: '110%'}}
                 >
                     <CyberButton
                         onClick={onExecute}

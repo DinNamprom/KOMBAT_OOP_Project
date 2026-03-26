@@ -10,13 +10,13 @@ interface ShopUnitButtonProps {
 }
 
 const ShopUnitButton: React.FC<ShopUnitButtonProps> = ({
-    unitId,
-    unitName,
-    imageSrc,
-    cost,
-    widthClass = "w-[28%]", // ค่าเริ่มต้นสำหรับการแสดงผล 3 ชิ้นต่อแถว
-    onClick
-}) => {
+                                                           unitId,
+                                                           unitName,
+                                                           imageSrc,
+                                                           cost,
+                                                           widthClass = "w-[28%]", // ค่าเริ่มต้นสำหรับการแสดงผล 3 ชิ้นต่อแถว
+                                                           onClick
+                                                       }) => {
     return (
         <button
             onClick={() => onClick(unitId)}

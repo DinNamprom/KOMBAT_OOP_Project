@@ -6,7 +6,7 @@ interface CyberButtonProps {
     width?: string;
 }
 
-const CyberButton = ({ onClick, altText, width = "w-70" }: CyberButtonProps) => {
+const CyberButton = ({onClick, altText, width = "w-70"}: CyberButtonProps) => {
     return (
         <button
             onClick={onClick}
@@ -23,8 +23,9 @@ const CyberButton = ({ onClick, altText, width = "w-70" }: CyberButtonProps) => 
 
             {/* 2. ข้อความซ้อนทับ (Overlay Layer) */}
             {/* absolute inset-0 ทำให้ span มีขนาดเท่าปุ่ม และใช้ flex จัดกึ่งกลาง */}
-            <span className="absolute inset-0 flex items-center justify-center text-[#FFFFFF] font-bold text-3xl font-handjet pointer-events-none tracking-wider"
-                  style={{ textShadow: '1px 1px 1px #2B8DF0' }}>
+            <span
+                className="absolute inset-0 flex items-center justify-center text-[#FFFFFF] font-bold text-3xl font-handjet pointer-events-none tracking-wider"
+                style={{textShadow: '1px 1px 1px #2B8DF0'}}>
                 {altText}
             </span>
         </button>

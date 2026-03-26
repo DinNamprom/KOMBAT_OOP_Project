@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import {useState, useEffect, useMemo} from 'react';
 
 import hexGray from '../assets/HexGray.svg';
 import hexRed from '../assets/HexRed.svg';
@@ -93,7 +93,7 @@ const PLAYER_AURA_FILTER: Record<1 | 2, string> = {
 // ==========================================
 // Component: 1 ชิ้นส่วน (HexPiece)
 // ==========================================
-const HexPiece = ({ owner, character, unitPlayerId, isBuyableCell, isGhostPreview, ghostImgSrc }: HexPieceProps) => {
+const HexPiece = ({owner, character, unitPlayerId, isBuyableCell, isGhostPreview, ghostImgSrc}: HexPieceProps) => {
     let hexBg = hexGray;
     if (owner === "red") hexBg = hexRed;
     if (owner === "blue") hexBg = hexBlue;
@@ -107,7 +107,7 @@ const HexPiece = ({ owner, character, unitPlayerId, isBuyableCell, isGhostPrevie
             />
 
             {isBuyableCell && (
-                <div className="absolute inset-0 z-[1] bg-yellow-400/30 rounded-sm pointer-events-none animate-pulse" />
+                <div className="absolute inset-0 z-[1] bg-yellow-400/30 rounded-sm pointer-events-none animate-pulse"/>
             )}
 
             {character && character.imgSrc && (
@@ -151,7 +151,7 @@ const HexBoard = ({
                       onCellMouseLeave,
                   }: HexBoardProps) => {
     const [boardData, setBoardData] = useState<HexData[][]>([]);
-    const [apiGrids, setApiGrids] = useState<{p1: string[], p2: string[]}>({ p1: [], p2: [] });
+    const [apiGrids, setApiGrids] = useState<{ p1: string[], p2: string[] }>({p1: [], p2: []});
     const [apiMinions, setApiMinions] = useState<PlacedUnit[]>([]);
 
     const hexWidth = 93;
@@ -168,10 +168,10 @@ const HexBoard = ({
                 // NOTE: Expecting a new endpoint /game/status/{gameID}
                 const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/game/status/${gameID}`);
                 if (!response.ok) return;
-                
+
                 const data = await response.json();
                 if (!data || !data.gridStatusList) return;
-                
+
                 // Map Grids
                 const p1Grids: string[] = [];
                 const p2Grids: string[] = [];
@@ -180,7 +180,7 @@ const HexBoard = ({
                     if (g.ownerID === player1ID) p1Grids.push(id);
                     else if (g.ownerID === player2ID) p2Grids.push(id);
                 });
-                setApiGrids({ p1: p1Grids, p2: p2Grids });
+                setApiGrids({p1: p1Grids, p2: p2Grids});
             } catch (err) {
                 console.error("HexBoard fetch error:", err);
             }
@@ -196,13 +196,15 @@ const HexBoard = ({
 
     const placedUnitMap = useMemo(() => {
         const map: Record<string, { unitId: string; playerId: 1 | 2 }> = {};
-        finalPlacedUnits.forEach((u) => { map[u.cellId] = { unitId: u.unitId, playerId: u.playerId }; });
+        finalPlacedUnits.forEach((u) => {
+            map[u.cellId] = {unitId: u.unitId, playerId: u.playerId};
+        });
         return map;
     }, [finalPlacedUnits]);
 
     const validCellSet = useMemo(() => new Set(validPlacementCells), [validPlacementCells]);
     const buyableCellSet = useMemo(() => new Set(buyableCells), [buyableCells]);
-    
+
     // Combine props grids and API grids
     const p1Set = useMemo(() => new Set([...player1Grids, ...apiGrids.p1]), [player1Grids, apiGrids.p1]);
     const p2Set = useMemo(() => new Set([...player2Grids, ...apiGrids.p2]), [player2Grids, apiGrids.p2]);
@@ -216,7 +218,7 @@ const HexBoard = ({
             const rowData: HexData[] = [];
             for (let c = 0; c < cols; c++) {
                 let owner = "none";
-                
+
 //                 // Player 2 (Top-Left cluster) - Backend (1,1) area
 //                 // Based on Stage.java Assign_Start_Gird: (1,1), (2,1), (2,2), (2,3), (1,2)
 //                 // 0-indexed: (0,0), (1,0), (1,1), (1,2), (0,1)
@@ -232,8 +234,8 @@ const HexBoard = ({
 //                     (r === 6 && (c === 7 || c === 6 || c === 5))) {
 //                     owner = "blue";
 //                 }
-                
-                rowData.push({ id: `${r}-${c}`, col: c, row: r, owner, character: null });
+
+                rowData.push({id: `${r}-${c}`, col: c, row: r, owner, character: null});
             }
             newBoard.push(rowData);
         }
@@ -248,7 +250,7 @@ const HexBoard = ({
                 height: `${(8 * yOffset) + (hexHeight / 2)}px`
             }}
         >
-            {boardData.map((row) => 
+            {boardData.map((row) =>
                 row.map((hex) => {
                     // คืนค่าการเยื้องคอลัมน์คู่ (0, 2, 4...) ดรอปลงมา ตามเดิม
                     const isEvenCol = hex.col % 2 === 0;
@@ -257,7 +259,7 @@ const HexBoard = ({
 
                     const placedInfo = placedUnitMap[hex.id];
                     const character: CharacterData | null = placedInfo
-                        ? { imgSrc: UNIT_SPRITE_MAP[placedInfo.unitId] || '' }
+                        ? {imgSrc: UNIT_SPRITE_MAP[placedInfo.unitId] || ''}
                         : null;
                     const unitPlayerId: 1 | 2 | null = placedInfo?.playerId ?? null;
 
@@ -282,7 +284,7 @@ const HexBoard = ({
                         <div
                             key={hex.id}
                             className={`absolute ${cursorClass}`}
-                            style={{ left: `${leftPos}px`, top: `${topPos}px` }}
+                            style={{left: `${leftPos}px`, top: `${topPos}px`}}
                             onClick={() => onCellClick?.(hex.id)}
                             onMouseEnter={() => onCellMouseEnter?.(hex.id)}
                             onMouseLeave={() => onCellMouseLeave?.()}

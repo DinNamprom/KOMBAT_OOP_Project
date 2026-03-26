@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import frameImage from '../assets/config-frame.svg';
 import innerFrameImage from '../assets/inner-black-frame.svg';
 
@@ -37,19 +37,19 @@ const CharacterStatsBox: React.FC<CharacterStatsBoxProps> = ({
         switch (field) {
             case 'hp':
                 setHp(numValue);
-                onStatsChange?.({ hp: numValue, def, spawnCost, atk });
+                onStatsChange?.({hp: numValue, def, spawnCost, atk});
                 break;
             case 'def':
                 setDef(numValue);
-                onStatsChange?.({ hp, def: numValue, spawnCost, atk });
+                onStatsChange?.({hp, def: numValue, spawnCost, atk});
                 break;
             case 'spawnCost':
                 setSpawnCost(numValue);
-                onStatsChange?.({ hp, def, spawnCost: numValue, atk });
+                onStatsChange?.({hp, def, spawnCost: numValue, atk});
                 break;
             case 'atk':
                 setAtk(numValue);
-                onStatsChange?.({ hp, def, spawnCost, atk: numValue });
+                onStatsChange?.({hp, def, spawnCost, atk: numValue});
                 break;
         }
     };
@@ -66,7 +66,8 @@ const CharacterStatsBox: React.FC<CharacterStatsBoxProps> = ({
                     }}
                 >
                     {/* Header - ชื่อตัวละคร */}
-                    <div className="absolute top-0 left-0 right-0 h-16 flex items-center justify-center bg-gradient-to-r from-[#3d4452] to-[#4a5260] border-b-2 border-[#7a8fa0]">
+                    <div
+                        className="absolute top-0 left-0 right-0 h-16 flex items-center justify-center bg-gradient-to-r from-[#3d4452] to-[#4a5260] border-b-2 border-[#7a8fa0]">
                         <h3
                             className="font-handjet text-3xl font-bold text-[#a0d9ff] tracking-widest"
                             style={{
@@ -78,7 +79,8 @@ const CharacterStatsBox: React.FC<CharacterStatsBoxProps> = ({
                     </div>
 
                     {/* Stats Container */}
-                    <div className="absolute top-16 left-0 right-0 bottom-0 flex flex-col justify-center px-6 py-4 gap-4">
+                    <div
+                        className="absolute top-16 left-0 right-0 bottom-0 flex flex-col justify-center px-6 py-4 gap-4">
 
                         {/* แถวที่ 1: ATK = ... HP = ... DEF = ... */}
                         <div className="flex items-center justify-center gap-6">
@@ -88,7 +90,8 @@ const CharacterStatsBox: React.FC<CharacterStatsBoxProps> = ({
                 <span className="font-handjet text-lg font-bold text-white tracking-wider">
                   ATK =
                 </span>
-                                <div className="relative bg-[#1a1f2e] px-2 py-1 rounded border-2 border-[#555a68] min-w-[70px] h-10 flex items-center justify-center overflow-hidden">
+                                <div
+                                    className="relative bg-[#1a1f2e] px-2 py-1 rounded border-2 border-[#555a68] min-w-[70px] h-10 flex items-center justify-center overflow-hidden">
                                     {/* ใช้ innerFrameImage เป็นพื้นหลัง */}
                                     <div
                                         className="absolute inset-0"
@@ -112,7 +115,8 @@ const CharacterStatsBox: React.FC<CharacterStatsBoxProps> = ({
                 <span className="font-handjet text-lg font-bold text-white tracking-wider">
                   HP =
                 </span>
-                                <div className="relative bg-[#1a1f2e] px-2 py-1 rounded border-2 border-[#555a68] min-w-[70px] h-10 flex items-center justify-center overflow-hidden">
+                                <div
+                                    className="relative bg-[#1a1f2e] px-2 py-1 rounded border-2 border-[#555a68] min-w-[70px] h-10 flex items-center justify-center overflow-hidden">
                                     <div
                                         className="absolute inset-0"
                                         style={{
@@ -135,7 +139,8 @@ const CharacterStatsBox: React.FC<CharacterStatsBoxProps> = ({
                 <span className="font-handjet text-lg font-bold text-white tracking-wider">
                   DEF =
                 </span>
-                                <div className="relative bg-[#1a1f2e] px-2 py-1 rounded border-2 border-[#555a68] min-w-[70px] h-10 flex items-center justify-center overflow-hidden">
+                                <div
+                                    className="relative bg-[#1a1f2e] px-2 py-1 rounded border-2 border-[#555a68] min-w-[70px] h-10 flex items-center justify-center overflow-hidden">
                                     <div
                                         className="absolute inset-0"
                                         style={{
@@ -160,7 +165,8 @@ const CharacterStatsBox: React.FC<CharacterStatsBoxProps> = ({
               <span className="font-handjet text-lg font-bold text-white tracking-wider">
                 Spawn cost =
               </span>
-                            <div className="relative bg-[#1a1f2e] px-2 py-1 rounded border-2 border-[#555a68] min-w-[70px] h-10 flex items-center justify-center overflow-hidden">
+                            <div
+                                className="relative bg-[#1a1f2e] px-2 py-1 rounded border-2 border-[#555a68] min-w-[70px] h-10 flex items-center justify-center overflow-hidden">
                                 <div
                                     className="absolute inset-0"
                                     style={{

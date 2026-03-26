@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import CyberButton from '../components/CyberButton';
 import Title from '../components/Title';
 import bgImage from '../assets/bg.svg';
@@ -17,7 +17,7 @@ const MainMenu = () => {
             }}
         >
             <div className="flex flex-col items-center gap-16">
-                <Title text="KOMBAT" />
+                <Title text="KOMBAT"/>
 
                 <div className="flex flex-col items-center gap-8">
                     <CyberButton

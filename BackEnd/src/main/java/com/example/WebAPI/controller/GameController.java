@@ -11,6 +11,8 @@ import com.example.WebAPI.Strategist.strategist;
 import com.example.WebAPI.dto.*;
 
 import com.example.WebAPI.dto.Status.GameStatus;
+import com.example.WebAPI.dto.Status.MinionStatus;
+import com.example.WebAPI.dto.Status.PlayerStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.example.WebAPI.repository.GameService;
@@ -37,7 +39,7 @@ public class GameController {
         }
     }
     //เพิ่มผู้เล่นเข้าเกม
-    @PostMapping("/{gameID}/{playerID}")
+    @PostMapping("/join/{gameID}")
     public boolean JoinGame(@PathVariable UUID gameID, @RequestParam UUID playerID) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return false;
@@ -45,7 +47,7 @@ public class GameController {
     }
 
     //กำหนดชนิดและกลยุทธ์ของ Minion ก่อนเริ่มเกม
-    @PostMapping("/{gameID}/minion-kind")
+    @PostMapping("/minion-kind/{gameID}")
     public boolean CreateMinionKind(@PathVariable UUID gameID, @RequestBody CreateMinion minion) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return false;
@@ -65,7 +67,7 @@ public class GameController {
         }}
 
     //Check Strategy
-    @PostMapping("/{gameID}/startegy")
+    @PostMapping("/strategy/{gameID}")
     public boolean CheckStrategy(@PathVariable UUID gameID, @RequestBody CheckStartegy startegy) {
         try {
             parser p = new parser(startegy.getStrategy());
@@ -79,7 +81,7 @@ public class GameController {
         }}
 
     //ยืนยันการเริ่มเกม
-    @PostMapping("/{gameID}/start")
+    @PostMapping("/start/{gameID}")
     public boolean StartGame(@PathVariable UUID gameID) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return false;
@@ -90,7 +92,7 @@ public class GameController {
 
     //GAMESTATE
     //ดึงข้อมูลทั้งหมดเพื่อแสดงผล
-    @GetMapping("/{gameID}/{playerID}")
+    @GetMapping("/actions/{gameID}/{playerID}")
     public List<MinionAction> MinionAction(@PathVariable UUID gameID ,@PathVariable UUID playerID) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return new ArrayList<>();
@@ -114,7 +116,7 @@ public class GameController {
 
 
     //ดึงรายการพิกัด Grid ที่ผู้เล่นคนนั้นสามารถซื้อได้ (อยู่ติดกับพื้นที่เดิม)
-    @GetMapping("/{gameID}/{playerID}/buyable-grids")
+    @GetMapping("/buyable-grids/{gameID}/{playerID}")
     public List<GridPosition> Getbuyablegrids(@PathVariable UUID gameID, @PathVariable UUID playerID) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return null;
@@ -127,7 +129,7 @@ public class GameController {
     }
 
     //ดึงรายการพิกัด Grid ที่ผู้เล่นคนนั้นเป็นเจ้าของ
-    @GetMapping("/{gameID}/{playerID}/spawnable-grids")
+    @GetMapping("/spawnable-grids/{gameID}/{playerID}")
     public List<GridPosition> GetSpawnablegrids(@PathVariable UUID gameID, @PathVariable UUID playerID) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return null;
@@ -140,12 +142,10 @@ public class GameController {
         return GridPosition;
     }
 
-    @GetMapping("/{gameID}/status")
+    @GetMapping("/status/{gameID}")
     public GameStatus GetGameStatus(@PathVariable UUID gameID) {
         Stage stage = gameService.getGame(gameID);
         if (stage == null) return null;
         return stage.getGameStatus();
     }
 }
-
-

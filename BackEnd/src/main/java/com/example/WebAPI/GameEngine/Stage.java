@@ -10,6 +10,7 @@ import com.example.WebAPI.Board.Board;
 import com.example.WebAPI.dto.Status.GameStatus;
 import com.example.WebAPI.dto.Status.GridStatus;
 import com.example.WebAPI.dto.Status.MinionStatus;
+import com.example.WebAPI.dto.Status.PlayerStatus;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.util.*;
 
 public class Stage {
     private final long max_turn;
-    private int current_turn = 1;
+    private int current_turn = 0;
     @Getter
 
     private final GameConfig config;
@@ -100,7 +101,7 @@ public class Stage {
     public void setupTurn() {
         turn t = new turn(current_turn, config, board);
         PlayerList.forEach((name, player) -> {
-            if (current_turn == 1) {
+            if (current_turn == 0) {
                 t.setup(player);
                 player.setBudget(config.initBudget);
             } else {
@@ -119,11 +120,11 @@ public class Stage {
             if (!s.getMinions().isEmpty()) alive.add(s);
         }
 
-        if (alive.size() == 1) {
+        if (current_turn > 0 && alive.size() == 1) {
             return alive.getFirst();
         }
 
-        if (current_turn >= config.maxTurns || alive.isEmpty()) {
+        if (current_turn >= config.maxTurns || (current_turn > 0 && alive.isEmpty())) {
             winner = calc_by_point(list);
         }
         return winner;
@@ -236,32 +237,37 @@ public class Stage {
         turn t = new turn(current_turn, config, board);
         strategist player = PlayerList.get(playerId);
         // ให้ Bot เล่นอัตโนมัติ (ถ้ามี)
-
-            if (player instanceof NonePlayer) {
+        boolean isBot = player instanceof NonePlayer;
+            if (isBot) {
                 try {
                     ((NonePlayer) player).auto_action(t, this);
                 } catch (Exception e) {
                     System.out.println("Bot Error: " + e.getMessage());
                 }
+                if (current_turn > 0) {
+                    t.minion_action(player);
+                    t.clear_minion(player);
+                }
+            }else {
+                if (current_turn >= 0) {
+                    t.minion_action(player);
+                    t.clear_minion(player);
+                }
             }
-        // Minion รันโค้ด Strategy ของตัวเองทีละตัว
-            t.minion_action(player);
-
-        // เคลียร์ Minion ที่เลือดหมด (ตาย)
-            t.clear_minion(player);
-
-        // เช็คผู้ชนะ
-        strategist winner = endgame_cal();
-        if (winner != null) {
-            System.out.println("Winner is " + winner.getName());
-            return true; // เกมจบ
-        } else if (current_turn >= max_turn) {
-            System.out.println("Draw");
-            return true; // เสมอ
+        if (current_turn > 0) {
+                strategist winner = endgame_cal();
+                if (winner != null) {
+                    System.out.println("Winner is " + winner.getName());
+                    return true; // เกมจบ
+                } else if (current_turn >= max_turn) {
+                    System.out.println("Draw");
+                    return true; // เสมอ
+                }
+            }
+        if (player.get_player_dir()) {
+            current_turn++;
+            setupTurn(); // เริ่มคำนวณเงินสำหรับเทิร์นถัดไป
         }
-
-        current_turn++;
-        setupTurn(); // เริ่มคำนวณเงินสำหรับเทิร์นถัดไป
         return false; // เกมยังไม่จบ
     }
 
@@ -273,7 +279,6 @@ public class Stage {
 
         // 2. ถ้าโหมด AUTO หรือ SOLITAIRE ผู้เล่นยังไม่ครบ ให้เติม Bot อัตโนมัติ
         if (PlayerList.size() == max_player) {
-            this.current_turn = 1;
             setupTurn();
             return true;
             } else {
@@ -283,15 +288,25 @@ public class Stage {
 
     public GameStatus getGameStatus() {
         List<GridStatus> grid_list = new ArrayList<>();
-        for (int i=1;i<board.max_row();i++) {
-            for (int j=1;j<board.max_col();j++) {
+        for (int i=1;i<=board.max_row();i++) {
+            for (int j=1;j<=board.max_col();j++) {
                 Grid cur = board.getGrid(i,j);
                 strategist owner = cur.getSpawnOwner();
                 GridStatus grid_status = new GridStatus(cur.getRow(),cur.getCol(),owner != null? owner.getUUID():null);
                 grid_list.add(grid_status);
             }
         }
-        return new GameStatus(grid_list);
+        List<MinionStatus> minionStatuses = new ArrayList<>();
+        List<PlayerStatus> playerStatuses = new ArrayList<>();
+        PlayerList.forEach(((uuid, strategist) -> {
+            PlayerStatus p_status = new PlayerStatus(uuid, strategist.getBudget());
+            for (minion m: strategist.getMinions()) {
+                MinionStatus m_status = new MinionStatus(m.getNo(),m.getKind().getName(),m.getRow(),m.getCol(),uuid,m.getHp());
+                minionStatuses.add(m_status);
+            }
+            playerStatuses.add(p_status);
+        }));
+        return new GameStatus(grid_list, minionStatuses, playerStatuses);
     }
 }
 

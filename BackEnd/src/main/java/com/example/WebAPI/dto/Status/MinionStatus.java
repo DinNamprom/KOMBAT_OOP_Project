@@ -14,5 +14,4 @@ public class MinionStatus {
     private int col;
     private UUID ownerID;
     private long hp;
-    //isDead
 }

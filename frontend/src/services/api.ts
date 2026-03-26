@@ -48,6 +48,32 @@ export interface MinionAction {
     actions: Action[];
 }
 
+export interface GridStatus {
+    row: number;
+    col: number;
+    ownerID: string;
+}
+
+export interface MinionStatus {
+    no: number;
+    kindName: string;
+    row: number;
+    col: number;
+    ownerID: string;
+    hp: number;
+}
+
+export interface PlayerStatus {
+    playerID: string;
+    budget: number;
+}
+
+export interface GameStatus {
+    gridStatusList: GridStatus[];
+    minionStatusList: MinionStatus[];
+    playerStatusList: PlayerStatus[];
+}
+
 export const api = {
     // Game Management
     createGame: async (modeConfig: CreateModeConfig): Promise<string> => {
@@ -60,14 +86,14 @@ export const api = {
     },
 
     joinPlayer: async (gameID: string, playerID: string): Promise<boolean> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/${playerID}?playerID=${encodeURIComponent(playerID)}`, {
+        const response = await fetch(`${API_BASE_URL}/game/join/${gameID}?playerID=${encodeURIComponent(playerID)}`, {
             method: 'POST',
         });
         return response.json();
     },
 
     createMinionKind: async (gameID: string, minion: CreateMinion): Promise<boolean> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/minion-kind`, {
+        const response = await fetch(`${API_BASE_URL}/game/minion-kind/${gameID}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(minion),
@@ -76,7 +102,7 @@ export const api = {
     },
 
     checkStrategy: async (gameID: string, strategy: string): Promise<boolean> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/startegy`, {
+        const response = await fetch(`${API_BASE_URL}/game/strategy/${gameID}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ strategy }),
@@ -85,29 +111,32 @@ export const api = {
     },
 
     startGame: async (gameID: string): Promise<boolean> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/start`, {
+        const response = await fetch(`${API_BASE_URL}/game/start/${gameID}`, {
             method: 'POST',
         });
         return response.json();
     },
 
-    getGameStat: async (gameID: string): Promise<any> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/stat`);
+    getGameStatus: async (gameID: string): Promise<GameStatus> => {
+        const response = await fetch(`${API_BASE_URL}/game/status/${gameID}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch game status: ${response.statusText}`);
+        }
         return response.json();
     },
 
     getBuyableGrids: async (gameID: string, playerID: string): Promise<GridPosition[]> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/${playerID}/buyable-grids`);
+        const response = await fetch(`${API_BASE_URL}/game/buyable-grids/${gameID}/${playerID}`);
         return response.json();
     },
 
     getSpawnableGrids: async (gameID: string, playerID: string): Promise<GridPosition[]> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/${playerID}/spawnable-grids`);
+        const response = await fetch(`${API_BASE_URL}/game/spawnable-grids/${gameID}/${playerID}`);
         return response.json();
     },
 
     getMinionActions: async (gameID: string, playerID: string): Promise<MinionAction[]> => {
-        const response = await fetch(`${API_BASE_URL}/game/${gameID}/${playerID}`);
+        const response = await fetch(`${API_BASE_URL}/game/actions/${gameID}/${playerID}`);
         return response.json();
     },
 

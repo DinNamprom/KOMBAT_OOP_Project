@@ -22,6 +22,7 @@ const ModeSelect = () => {
         try {
             const gameID = await api.createGame({ mode: modeId, config });
             localStorage.setItem('gameID', gameID);
+            localStorage.setItem('mode', modeId);
             console.log("Game created with ID:", gameID);
             navigate(path);
         } catch (error) {

@@ -55,8 +55,8 @@ public class turn {
     }
 
     public void turnSetup(strategist p) {
-        long cur_budget = p.getBudget();
-        long interest = (long) (config.TurnInterest * (Math.log10((double) cur_budget)) * (Math.log( current_turn)));
+        long cur_budget = Math.max(1, p.getBudget());
+        long interest = (long) (config.TurnInterest * (Math.log10((double) cur_budget)) * (Math.log( Math.max(1, current_turn) )));
         p.increaseBudget(interest);
         if (p.getBudget() >= config.maxBudget) {p.setBudget(config.maxBudget);}
 
@@ -93,7 +93,6 @@ public class turn {
         Iterator<minion> it = p.getMinions().iterator();
         while (it.hasNext()) {
             minion m = it.next();
-            //เก็บข้อมูล minionstatus ใส่ใน list ตรงนี้
             if (m.isDead()) {
                 if (m.getGrid() != null) {
                     m.getGrid().removeMinion();

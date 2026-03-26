@@ -77,6 +77,11 @@ const UNIT_SPRITE_MAP: Record<string, string> = {
     char3: gundamSprite,
     char4: redCometSprite,
     char5: zeongSprite,
+    gm: gmSprite,
+    zaku: zakuSprite,
+    gundam: gundamSprite,
+    redcomet: redCometSprite,
+    zeong: zeongSprite,
 };
 
 // Aura glow สำหรับแต่ละ Player
@@ -105,7 +110,7 @@ const HexPiece = ({ owner, character, unitPlayerId, isBuyableCell, isGhostPrevie
                 <div className="absolute inset-0 z-[1] bg-yellow-400/30 rounded-sm pointer-events-none animate-pulse" />
             )}
 
-            {character && (
+            {character && character.imgSrc && (
                 <img
                     src={character.imgSrc}
                     alt="Character"
@@ -154,43 +159,34 @@ const HexBoard = ({
     const xOffset = hexWidth * 0.7;
     const yOffset = hexHeight;
 
-    // Fetch dynamic data from backend
+    // Fetch dynamic data from backend - removed interval as MainGame handles polling
     useEffect(() => {
         if (!gameID) return;
 
         const fetchData = async () => {
             try {
-                // NOTE: Expecting a new endpoint /game/{gameID}/status (See requirements list)
-                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/game/${gameID}/status`);
+                // NOTE: Expecting a new endpoint /game/status/{gameID}
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/game/status/${gameID}`);
                 if (!response.ok) return;
                 
                 const data = await response.json();
+                if (!data || !data.gridStatusList) return;
                 
                 // Map Grids
                 const p1Grids: string[] = [];
                 const p2Grids: string[] = [];
-                data.GridStatusList.forEach((g: any) => {
+                data.gridStatusList.forEach((g: any) => {
                     const id = `${g.row - 1}-${g.col - 1}`;
                     if (g.ownerID === player1ID) p1Grids.push(id);
                     else if (g.ownerID === player2ID) p2Grids.push(id);
                 });
                 setApiGrids({ p1: p1Grids, p2: p2Grids });
-
-                // Map Minions
-//                 const minions: PlacedUnit[] = data.minions.map((m: any) => ({
-//                     cellId: `${m.row - 1}-${m.col - 1}`,
-//                     unitId: KIND_NAME_TO_ID[m.kindName] || m.kindName,
-//                     playerId: m.ownerID === player1ID ? 1 : 2
-//                 }));
-//                 setApiMinions(minions);
             } catch (err) {
                 console.error("HexBoard fetch error:", err);
             }
         };
 
         fetchData();
-        const interval = setInterval(fetchData, 2000); // Polling every 2s
-        return () => clearInterval(interval);
     }, [gameID, player1ID, player2ID]);
 
     const finalPlacedUnits = useMemo(() => {
@@ -309,3 +305,4 @@ const HexBoard = ({
     );
 };
 export default HexBoard;
+

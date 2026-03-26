@@ -18,16 +18,32 @@ const LoadingToMainGame = () => {
             }
 
             try {
+                const mode = localStorage.getItem('mode') || 'SOLITAIRE';
                 const myId: string = uuidv4();
                 const myId2: string = uuidv4();
-                localStorage.setItem('Player1', myId);
-                localStorage.setItem('Player2', myId2);
-                // 1. Join Players (Assuming "Player 1" and "Player 2")
-                // Note: JoinGame in backend might need to be called twice for DUEL
+
+                let p1Status = 'player';
+                let p2Status = 'bot';
+
+                if (mode === 'SOLITAIRE') {
+                    p1Status = 'player';
+                    p2Status = 'bot';
+                } else if (mode === 'DUEL') {
+                    p1Status = 'player';
+                    p2Status = 'player';
+                } else if (mode === 'AUTO') {
+                    p1Status = 'bot';
+                    p2Status = 'bot';
+                }
+
+                localStorage.setItem('Player1', JSON.stringify({ id: myId, type: p1Status }));
+                localStorage.setItem('Player2', JSON.stringify({ id: myId2, type: p2Status }));
+
+                // 1. Join Players
                 await api.joinPlayer(gameID, myId);
                 await api.joinPlayer(gameID, myId2);
-                console.log(myId,"1 Join Success");
-                console.log(myId2,"2 Join Success");
+                console.log(myId, "1 Join Success as", p1Status);
+                console.log(myId2, "2 Join Success as", p2Status);
 
                 // For other modes, backend start_game_setup will fill with bots
                 // But for DUEL we might need to join Player 2 explicitly if we want human vs human

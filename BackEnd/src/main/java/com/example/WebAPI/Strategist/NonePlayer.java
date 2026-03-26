@@ -6,10 +6,9 @@ import com.example.WebAPI.Config.GameConfig;
 import com.example.WebAPI.GameEngine.Stage;
 import com.example.WebAPI.GameEngine.turn;
 import com.example.WebAPI.Minion.minion;
+import com.example.WebAPI.Minion.minion_kind;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NonePlayer extends Player {
@@ -117,35 +116,35 @@ public class NonePlayer extends Player {
 
     public void auto_action(turn t, Stage stage) {
         List<Grid> buyableGrid = stage.getBuyableGrids(this.getUUID());
-        AtomicBoolean buy = new AtomicBoolean(false);
         long hex_cost = stage.getConfig().HexCost;
-        if (getBudget() > hex_cost) {
-            t.buy_grid(buyableGrid.getFirst(),this, hex_cost);
+        if (stage.getCurrentTurn() > 0) {
+            if (getBudget() > hex_cost) {
+                t.buy_grid(buyableGrid.getFirst(),this, hex_cost);
+            }
         }
-        stage.getMinion_kinds().forEach((s, kind) -> {
-            if (getBudget() > kind.getSpawnCost() && !buy.get()) {
-                for (Grid g: super.getGrids()) {
-                    if (!g.haveMinion()) {
-                        if (!get_player_dir()) {
-                            try {
-                                t.buy_minion(this, kind, g.getRow(),g.getCol());
-                                buy.set(true);
-                                break;
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
-                            }
-                        }else {
-                            try {
-                                t.buy_minion_inverse(this,kind, g.getRow(), g.getCol());
-                                buy.set(true);
-                                break;
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
-                            }
-                        }
+        List<minion_kind> kinds = new ArrayList<>(stage.getMinion_kinds().values());
+        if (kinds.isEmpty()) return;
+        minion_kind kind = kinds.get(new Random().nextInt(kinds.size()));
+        boolean hasEmptyGrid = getGrids().stream().anyMatch(g -> !g.haveMinion());
+        if (getBudget() >= kind.getSpawnCost() && hasEmptyGrid) {
+                Random rand = new Random();
+                Grid target;
+                do {
+                    target = super.getGrids().get(rand.nextInt(super.getGrids().size()));
+                }while(target.haveMinion());
+                if (!get_player_dir()) {
+                    try {
+                        t.buy_minion(this, kind, target.getRow(),target.getCol());
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }else {
+                    try {
+                        t.buy_minion_inverse(this,kind, target.getRow(), target.getCol());
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
                     }
                 }
-            }
-        });
+        }
     }
 }

@@ -25,10 +25,10 @@ public class turn {
     public minion buy_minion(strategist p, minion_kind kind, int row, int col) throws Exception {
         if (p.isMaxMinion()) return null;
         long cost = kind.getSpawnCost();
-        if (current_turn != 1 && p.getBudget() < cost) return null;
+        if (current_turn != 0 && p.getBudget() < cost) return null;
         Grid target_grid = board.getGrid(row, col);
         if (target_grid == null || target_grid.haveMinion()) return null;
-        if (current_turn != 1) p.decreaseBudget(cost);
+        if (current_turn != 0) p.decreaseBudget(cost);
         minion m = new minion(kind, p, config.initHp, row, col);
         p.addMinion(m);
         target_grid.addMinion(m);
